@@ -120,6 +120,6 @@ void SchedulingPeriod::LoadContracts(ifstream &periodStream)
   {
     Contract contract;
     contract.LoadFromStream(periodStream);
-    this->contracts[contract.getId()] = contract;
+    this->contracts[contract.id] = contract;
   }
 }

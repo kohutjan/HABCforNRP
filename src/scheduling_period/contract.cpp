@@ -13,24 +13,24 @@ void Contract::LoadFromStream(ifstream &periodStream)
   periodStream >> this->description;
   this->description.pop_back();
   cout << this->description << ", ";
-  this->singleAssignmentPerDay = this->ConvertConstrainToVec(periodStream);
-  this->maxNumAssignments = this->ConvertConstrainToVec(periodStream);
-  this->minNumAssignments = this->ConvertConstrainToVec(periodStream);
-  this->maxConsecutiveWorkingDays = this->ConvertConstrainToVec(periodStream);
-  this->minConsecutiveWorkingDays = this->ConvertConstrainToVec(periodStream);
-  this->maxConsecutiveFreeDays = this->ConvertConstrainToVec(periodStream);
-  this->minConsecutiveFreeDays = this->ConvertConstrainToVec(periodStream);
-  this->maxConsecutiveWorkingWeekends = this->ConvertConstrainToVec(periodStream);
-  this->minConsecutiveWorkingWeekends = this->ConvertConstrainToVec(periodStream);
-  this->maxWorkingWeekendsInFourWeeks = this->ConvertConstrainToVec(periodStream);
+  this->singleAssignmentPerDay = this->LoadConstrain(periodStream);
+  this->maxNumAssignments = this->LoadConstrain(periodStream);
+  this->minNumAssignments = this->LoadConstrain(periodStream);
+  this->maxConsecutiveWorkingDays = this->LoadConstrain(periodStream);
+  this->minConsecutiveWorkingDays = this->LoadConstrain(periodStream);
+  this->maxConsecutiveFreeDays = this->LoadConstrain(periodStream);
+  this->minConsecutiveFreeDays = this->LoadConstrain(periodStream);
+  this->maxConsecutiveWorkingWeekends = this->LoadConstrain(periodStream);
+  this->minConsecutiveWorkingWeekends = this->LoadConstrain(periodStream);
+  this->maxWorkingWeekendsInFourWeeks = this->LoadConstrain(periodStream);
   periodStream >> this->weekendDefinition;
   this->weekendDefinition.pop_back();
   cout << this->weekendDefinition << ", ";
-  this->completeWeekends = this->ConvertConstrainToVec(periodStream);
-  this->identShiftTypesDuringWeekend = this->ConvertConstrainToVec(periodStream);
-  this->noNightShiftBeforeFreeWeekend = this->ConvertConstrainToVec(periodStream);
-  this->twoFreeDaysAfterNightShifts = this->ConvertConstrainToVec(periodStream);
-  this->alternativeSkillCategory = this->ConvertConstrainToVec(periodStream);
+  this->completeWeekends = this->LoadConstrain(periodStream);
+  this->identShiftTypesDuringWeekend = this->LoadConstrain(periodStream);
+  this->noNightShiftBeforeFreeWeekend = this->LoadConstrain(periodStream);
+  this->twoFreeDaysAfterNightShifts = this->LoadConstrain(periodStream);
+  this->alternativeSkillCategory = this->LoadConstrain(periodStream);
   int numberOfUnwantedPatterns;
   int patternId;
   periodStream >> numberOfUnwantedPatterns;
@@ -47,27 +47,31 @@ void Contract::LoadFromStream(ifstream &periodStream)
   return;
 }
 
-vector<int> Contract::ConvertConstrainToVec(ifstream &periodStream)
+Constrain Contract::LoadConstrain(ifstream &periodStream)
 {
   char ignoreChar;
   string ignore;
-  vector<int> constrain(2);
+  int on;
+  int weight;
   periodStream >> ignoreChar;
-  int constrainVal;
-  for (int i = 0; i < 2; ++i)
+  periodStream >> on;
+  periodStream >> ignoreChar;
+  periodStream >> weight;
+  periodStream >> ignoreChar;
+  if (ignoreChar == ')')
   {
-    periodStream >> constrainVal;
-    constrain[i] = constrainVal;
-    periodStream >> ignoreChar;
+    Constrain constrain(on, weight);
+    cout << "(" << constrain.on << "|" << constrain.weight << "), ";
+    periodStream >> ignore;
+    return constrain;
   }
-  cout << "(" << constrain[0] << "|" << constrain[1];
-  if (ignoreChar == '|')
+  else
   {
-    periodStream >> constrainVal;
-    constrain.push_back(constrainVal);
-    cout << "|" << constrain[2];
+    int value;
+    periodStream >> value;
+    Constrain constrain(on, weight, value);
+    cout << "(" << constrain.on << "|" << constrain.weight << "|" << constrain.value << "), ";
+    periodStream >> ignore;
+    return constrain;
   }
-  periodStream >> ignore;
-  cout << "), ";
-  return constrain;
 }

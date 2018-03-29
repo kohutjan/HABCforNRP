@@ -9,6 +9,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 #include "scheduling_period/contract.hpp"
+#include "scheduling_period/pattern.hpp"
 
 
 class SchedulingPeriod
@@ -27,6 +28,7 @@ class SchedulingPeriod
     boost::gregorian::date endDate;
     std::map<char, std::pair<boost::posix_time::time_duration, boost::posix_time::time_duration>> shiftTypes;
     std::map<int, Contract> contracts;
+    std::map<int, Pattern> patterns;
 };
 
 #endif

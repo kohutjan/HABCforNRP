@@ -42,6 +42,10 @@ void SchedulingPeriod::LoadFromStream(ifstream &periodStream)
     {
       this->LoadContracts(periodStream);
     }
+    if (param == "PATTERNS")
+    {
+      this->LoadPatterns(periodStream);
+    }
   }
   cout << "#############################################################" << endl;
   cout << endl;
@@ -65,6 +69,7 @@ void SchedulingPeriod::LoadPeriod(ifstream &periodStream)
   tmpDate.pop_back();
   this->endDate = from_simple_string(tmpDate);
   cout << "end date: " << this->endDate << endl;
+  return;
 }
 
 void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
@@ -104,6 +109,7 @@ void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
     periodStream >> ignore;
     periodStream >> ignore;
   }
+  return;
 }
 
 void SchedulingPeriod::LoadContracts(ifstream &periodStream)
@@ -122,4 +128,24 @@ void SchedulingPeriod::LoadContracts(ifstream &periodStream)
     contract.LoadFromStream(periodStream);
     this->contracts[contract.id] = contract;
   }
+  return;
+}
+
+void SchedulingPeriod::LoadPatterns(ifstream &periodStream)
+{
+  cout << endl;
+  cout << "Patterns" << endl;
+  string ignore;
+  int numberOfPatterns;
+  periodStream >> ignore;
+  periodStream >> numberOfPatterns;
+  periodStream >> ignore;
+  periodStream >> ignore;
+  for (int i = 0; i < numberOfPatterns; ++i)
+  {
+    Pattern pattern;
+    pattern.LoadFromStream(periodStream);
+    this->patterns[pattern.id] = pattern;
+  }
+  return;
 }

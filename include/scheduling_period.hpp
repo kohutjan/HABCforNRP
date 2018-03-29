@@ -8,6 +8,9 @@
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 
+#include "scheduling_period/contract.hpp"
+
+
 class SchedulingPeriod
 {
   public:
@@ -18,10 +21,12 @@ class SchedulingPeriod
   private:
     void LoadPeriod(std::ifstream &filtersStream);
     void LoadShiftTypes(std::ifstream &periodStream);
+    void LoadContracts(std::ifstream &periodStream);
     std::string name;
     boost::gregorian::date startDate;
     boost::gregorian::date endDate;
     std::map<char, std::pair<boost::posix_time::time_duration, boost::posix_time::time_duration>> shiftTypes;
+    std::map<int, Contract> contracts;
 };
 
 #endif

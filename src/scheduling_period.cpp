@@ -38,6 +38,10 @@ void SchedulingPeriod::LoadFromStream(ifstream &periodStream)
     {
       this->LoadShiftTypes(periodStream);
     }
+    if (param == "CONTRACTS")
+    {
+      this->LoadContracts(periodStream);
+    }
   }
   cout << "#############################################################" << endl;
   cout << endl;
@@ -65,16 +69,15 @@ void SchedulingPeriod::LoadPeriod(ifstream &periodStream)
 
 void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
 {
+  cout << endl;
+  cout << "Shift types" << endl;
   string ignore;
-  char ignoreChar;
   int numberOfTypes;
   char type;
   periodStream >> ignore;
   periodStream >> numberOfTypes;
   periodStream >> ignore;
   periodStream >> ignore;
-  cout << endl;
-  cout << "Shift types" << endl;
   for (int i = 0; i < numberOfTypes; ++i)
   {
     periodStream >> type;
@@ -100,5 +103,23 @@ void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
     cout << this->shiftTypes[type].second << endl;
     periodStream >> ignore;
     periodStream >> ignore;
+  }
+}
+
+void SchedulingPeriod::LoadContracts(ifstream &periodStream)
+{
+  cout << endl;
+  cout << "Contracts" << endl;
+  string ignore;
+  int numberOfContracts;
+  periodStream >> ignore;
+  periodStream >> numberOfContracts;
+  periodStream >> ignore;
+  periodStream >> ignore;
+  for (int i = 0; i < numberOfContracts; ++i)
+  {
+    Contract contract;
+    contract.LoadFromStream(periodStream);
+    this->contracts[contract.getId()] = contract;
   }
 }

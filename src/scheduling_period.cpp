@@ -54,19 +54,24 @@ void SchedulingPeriod::LoadPeriod(ifstream &periodStream)
   this->name.pop_back();
   cout << "name: " << this->name << endl;
   periodStream >> tmpDate;
+  tmpDate.pop_back();
   this->startDate = from_simple_string(tmpDate);
-  cout << "start date: " << to_simple_string(this->startDate) << endl;
+  cout << "start date: " << this->startDate << endl;
   periodStream >> tmpDate;
+  tmpDate.pop_back();
   this->endDate = from_simple_string(tmpDate);
-  cout << "end date: " << to_simple_string(this->endDate) << endl;
+  cout << "end date: " << this->endDate << endl;
 }
 
 void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
 {
   string ignore;
+  char ignoreChar;
   int numberOfTypes;
   char type;
+  periodStream >> ignore;
   periodStream >> numberOfTypes;
+  periodStream >> ignore;
   periodStream >> ignore;
   cout << endl;
   cout << "Shift types" << endl;
@@ -76,19 +81,24 @@ void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
     cout << type << ", ";
     periodStream >> ignore;
     periodStream >> ignore;
+    if (type == 'D')
+    {
+      periodStream >> ignore;
+    }
     string startTimeString;
     string endTimeString;
     periodStream >> startTimeString;
     periodStream >> endTimeString;
+    startTimeString.pop_back();
+    endTimeString.pop_back();
     time_duration startTime;
     time_duration endTime;
     startTime = duration_from_string(startTimeString);
     endTime = duration_from_string(endTimeString);
-    this->shiftTypes[type] = make_pair<startTime, endTime>;
+    this->shiftTypes[type] = make_pair(startTime, endTime);
     cout << this->shiftTypes[type].first << ", ";
     cout << this->shiftTypes[type].second << endl;
     periodStream >> ignore;
     periodStream >> ignore;
   }
-
 }

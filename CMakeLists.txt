@@ -13,7 +13,8 @@ include_directories(${HBACforNRP_SRC_DIR})
 add_executable(nrp
                ${HBACforNRP_SRC_DIR}/main.cpp
 	       ${HBACforNRP_SRC_DIR}/scheduling_period.cpp
-	       ${HBACforNRP_SRC_DIR}/scheduling_period/contract.cpp)
+	       ${HBACforNRP_SRC_DIR}/scheduling_period/contract.cpp
+	       ${HBACforNRP_SRC_DIR}/scheduling_period/pattern.cpp)
 
 target_link_libraries(nrp Boost::date_time)
 

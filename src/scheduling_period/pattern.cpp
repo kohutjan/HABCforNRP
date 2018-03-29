@@ -1,4 +1,4 @@
-#include "scheduling_period/contract.hpp"
+#include "scheduling_period/pattern.hpp"
 
 
 using namespace std;
@@ -30,12 +30,16 @@ void Pattern::LoadShift(ifstream &periodStream)
   string shiftStr;
   periodStream >> shiftStr;
   shiftStr.pop_back();
+  if (shiftStr.back() == ')')
+  {
+    shiftStr.pop_back();
+  }
   int delimiterPos = shiftStr.find("|");
   string shiftType;
   string shiftDay;
   shiftType = shiftStr.substr(0, delimiterPos);
   shiftDay = shiftStr.substr(delimiterPos + 1);
-  cout << "(" << shiftType << "|" << shiftDay << ")";
+  cout << "(" << shiftType << "|" << shiftDay << ") ";
   this->shifts.push_back(make_pair(shiftType, shiftDay));
   return;
 }

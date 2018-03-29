@@ -7,8 +7,6 @@
 #include <fstream>
 #include <iostream>
 
-#include "scheduling_period/constrain.hpp"
-
 
 class Pattern
 {
@@ -20,7 +18,7 @@ class Pattern
     std::vector<std::pair<std::string, std::string>> shifts;
     ~Pattern(){}
   private:
-    Constrain LoadShift(std::ifstream &periodStream);
+    void LoadShift(std::ifstream &periodStream);
 
 };
 

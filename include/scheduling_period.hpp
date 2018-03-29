@@ -23,6 +23,7 @@ class SchedulingPeriod
     void LoadPeriod(std::ifstream &filtersStream);
     void LoadShiftTypes(std::ifstream &periodStream);
     void LoadContracts(std::ifstream &periodStream);
+    void LoadPatterns(std::ifstream &periodStream);
     std::string name;
     boost::gregorian::date startDate;
     boost::gregorian::date endDate;

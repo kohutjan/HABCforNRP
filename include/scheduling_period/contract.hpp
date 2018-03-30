@@ -13,7 +13,7 @@ class Contract
 {
   public:
     Contract(){};
-    void LoadFromStream(std::ifstream &filtersStream);
+    void LoadFromStream(std::ifstream &periodStream);
     int id;
     std::string description;
     Constrain singleAssignmentPerDay;

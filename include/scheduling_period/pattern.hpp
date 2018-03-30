@@ -12,7 +12,7 @@ class Pattern
 {
   public:
     Pattern(){};
-    void LoadFromStream(std::ifstream &filtersStream);
+    void LoadFromStream(std::ifstream &periodStream);
     int id;
     int weight;
     std::vector<std::pair<std::string, std::string>> shifts;

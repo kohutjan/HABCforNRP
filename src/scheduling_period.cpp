@@ -36,15 +36,49 @@ void SchedulingPeriod::LoadFromStream(ifstream &periodStream)
     }
     if (param == "SHIFT_TYPES")
     {
-      this->LoadShiftTypes(periodStream);
+      cout << endl;
+      cout << "Shifts" << endl;
+      this->shifts = this->LoadParam<char, Shift>(periodStream);
     }
     if (param == "CONTRACTS")
     {
-      this->LoadContracts(periodStream);
+      cout << endl;
+      cout << "Contracts" << endl;
+      this->contracts = this->LoadParam<int, Contract>(periodStream);
     }
     if (param == "PATTERNS")
     {
-      this->LoadPatterns(periodStream);
+      cout << endl;
+      cout << "Patterns" << endl;
+      this->patterns = this->LoadParam<int, Pattern>(periodStream);
+    }
+    if (param == "EMPLOYEES")
+    {
+      this->LoadEmployees(periodStream);
+    }
+    if (param == "DAY_OF_WEEK_COVER")
+    {
+      this->LoadCover(periodStream, true);
+    }
+    if (param == "DATE_SPECIFIC_COVER")
+    {
+      this->LoadCover(periodStream, false);
+    }
+    if (param == "DAY_OFF_REQUESTS")
+    {
+      this->LoadRequests(periodStream, false, true);
+    }
+    if (param == "DAY_ON_REQUESTS")
+    {
+      this->LoadRequests(periodStream, true, true);
+    }
+    if (param == "SHIFT_OFF_REQUESTS")
+    {
+      this->LoadRequests(periodStream, false, false);
+    }
+    if (param == "SHIFT_ON_REQUESTS")
+    {
+      this->LoadRequests(periodStream, true, false);
     }
   }
   cout << "#############################################################" << endl;
@@ -60,92 +94,118 @@ void SchedulingPeriod::LoadPeriod(ifstream &periodStream)
   periodStream >> ignore;
   periodStream >> this->name;
   this->name.pop_back();
-  cout << "name: " << this->name << endl;
+  cout << this->name << ", ";
   periodStream >> tmpDate;
   tmpDate.pop_back();
   this->startDate = from_simple_string(tmpDate);
-  cout << "start date: " << this->startDate << endl;
+  cout << this->startDate << ", ";
   periodStream >> tmpDate;
   tmpDate.pop_back();
   this->endDate = from_simple_string(tmpDate);
-  cout << "end date: " << this->endDate << endl;
+  cout << this->endDate << endl;
   return;
 }
 
-void SchedulingPeriod::LoadShiftTypes(ifstream &periodStream)
+void SchedulingPeriod::LoadEmployees(ifstream &periodStream)
 {
   cout << endl;
-  cout << "Shift types" << endl;
+  cout << "Employees" << endl;
   string ignore;
-  int numberOfTypes;
-  char type;
-  periodStream >> ignore;
-  periodStream >> numberOfTypes;
+  int numberOfEmployees;
+  periodStream >> numberOfEmployees;
   periodStream >> ignore;
   periodStream >> ignore;
-  for (int i = 0; i < numberOfTypes; ++i)
+  for (int i = 0; i < numberOfEmployees; ++i)
   {
-    periodStream >> type;
-    cout << type << ", ";
+    Employee employee;
+    employee.LoadFromStream(periodStream);
+    this->employees[employee.id] = employee;
+  }
+}
+
+
+void SchedulingPeriod::LoadRequests(ifstream &periodStream, bool on, bool day)
+{
+  cout << endl;
+  if (day)
+  {
+    cout << "Day ";
+  }
+  else
+  {
+    cout << "Shift ";
+  }
+  if (on)
+  {
+    cout << "on requests" << endl;
+  }
+  else
+  {
+    cout << "off requests" << endl;
+  }
+  string ignore;
+  int numberOfRequests;
+  periodStream >> ignore;
+  periodStream >> numberOfRequests;
+  periodStream >> ignore;
+  periodStream >> ignore;
+  int employeeId;
+  for (int i = 0; i < numberOfRequests; ++i)
+  {
+    periodStream >> employeeId;
     periodStream >> ignore;
-    periodStream >> ignore;
-    if (type == 'D')
+    cout << employeeId << ", ";
+    if (day)
     {
-      periodStream >> ignore;
+      this->employees[employeeId].LoadDayRequest(periodStream, on);
     }
-    string startTimeString;
-    string endTimeString;
-    periodStream >> startTimeString;
-    periodStream >> endTimeString;
-    startTimeString.pop_back();
-    endTimeString.pop_back();
-    time_duration startTime;
-    time_duration endTime;
-    startTime = duration_from_string(startTimeString);
-    endTime = duration_from_string(endTimeString);
-    this->shiftTypes[type] = make_pair(startTime, endTime);
-    cout << this->shiftTypes[type].first << ", ";
-    cout << this->shiftTypes[type].second << endl;
-    periodStream >> ignore;
-    periodStream >> ignore;
+    else
+    {
+      this->employees[employeeId].LoadShiftRequest(periodStream, on);
+    }
   }
-  return;
 }
 
-void SchedulingPeriod::LoadContracts(ifstream &periodStream)
+void SchedulingPeriod::LoadCover(ifstream &periodStream, bool day)
 {
   cout << endl;
-  cout << "Contracts" << endl;
-  string ignore;
-  int numberOfContracts;
-  periodStream >> ignore;
-  periodStream >> numberOfContracts;
-  periodStream >> ignore;
-  periodStream >> ignore;
-  for (int i = 0; i < numberOfContracts; ++i)
+  if (day)
   {
-    Contract contract;
-    contract.LoadFromStream(periodStream);
-    this->contracts[contract.id] = contract;
+    cout << "Day of week cover" << endl;
   }
-  return;
-}
-
-void SchedulingPeriod::LoadPatterns(ifstream &periodStream)
-{
-  cout << endl;
-  cout << "Patterns" << endl;
-  string ignore;
-  int numberOfPatterns;
-  periodStream >> ignore;
-  periodStream >> numberOfPatterns;
-  periodStream >> ignore;
-  periodStream >> ignore;
-  for (int i = 0; i < numberOfPatterns; ++i)
+  else
   {
-    Pattern pattern;
-    pattern.LoadFromStream(periodStream);
-    this->patterns[pattern.id] = pattern;
+    cout << "Date specific cover" << endl;
+  }
+  string ignore;
+  int numberOfCovers;
+  periodStream >> ignore;
+  periodStream >> numberOfCovers;
+  periodStream >> ignore;
+  periodStream >> ignore;
+  for (int i = 0; i < numberOfCovers; ++i)
+  {
+    string dateDay;
+    periodStream >> dateDay;
+    dateDay.pop_back();
+    char shiftType;
+    periodStream >> shiftType;
+    periodStream >> ignore;
+    int numberOfEmployees;
+    periodStream >> numberOfEmployees;
+    periodStream >> ignore;
+    if (day)
+    {
+      this->dayOfWeekCover[dateDay] = make_pair(shiftType, numberOfEmployees);
+      cout << dateDay << ", " << this->dayOfWeekCover[dateDay].first << ", ";
+      cout << this->dayOfWeekCover[dateDay].second << endl;
+    }
+    else
+    {
+      this->dateSpecificCover[dateDay] = make_pair(shiftType, numberOfEmployees);
+      cout << dateDay << ", " << this->dateSpecificCover[dateDay].first << ", ";
+      cout << this->dateSpecificCover[dateDay].second << endl;
+    }
   }
   return;
 }

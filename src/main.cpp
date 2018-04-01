@@ -2,7 +2,7 @@
 #include <string>
 #include <getopt.h>
 
-#include "scheduling_period.hpp"
+#include "HBAC.hpp"
 
 
 using namespace std;
@@ -46,6 +46,8 @@ int main(int argc, char **argv)
 
   SchedulingPeriod schedulingPeriod;
   schedulingPeriod.Load(periodFilePath);
+  HBAC hbac;
+  hbac.setSchedulingPeriod(schedulingPeriod);
 
   return 0;
 }

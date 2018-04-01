@@ -20,6 +20,15 @@ class SchedulingPeriod
     SchedulingPeriod(){};
     bool Load(std::string periodFilePath);
     void LoadFromStream(std::ifstream &periodStream);
+    std::string name;
+    boost::gregorian::date startDate;
+    boost::gregorian::date endDate;
+    std::map<char, Shift> shifts;
+    std::map<int, Employee> employees;
+    std::map<int, Contract> contracts;
+    std::map<int, Pattern> patterns;
+    std::map<std::string, std::pair<char, int>> dayOfWeekCover;
+    std::map<std::string, std::pair<char, int>> dateSpecificCover;
     ~SchedulingPeriod(){}
   private:
     void LoadPeriod(std::ifstream &periodStream);
@@ -31,15 +40,6 @@ class SchedulingPeriod
     void LoadCover(std::ifstream &periodStream, bool day);
     template <typename I, typename P>
     std::map<I, P> LoadParam(std::ifstream &periodStream);
-    std::string name;
-    boost::gregorian::date startDate;
-    boost::gregorian::date endDate;
-    std::map<char, Shift> shifts;
-    std::map<int, Contract> contracts;
-    std::map<int, Pattern> patterns;
-    std::map<int, Employee> employees;
-    std::map<std::string, std::pair<char, int>> dayOfWeekCover;
-    std::map<std::string, std::pair<char, int>> dateSpecificCover;
 };
 
 template <typename I, typename P>

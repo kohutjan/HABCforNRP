@@ -15,7 +15,7 @@ class HBAC
     {
       schedulingPeriod = _schedulingPeriod;
     }
-    void initRosters();
+    void InitRosters();
     ~HBAC(){}
   private:
     SchedulingPeriod schedulingPeriod;

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void HBAC::initRosters()
+void HBAC::InitRosters()
 {
   Roster roster;
   roster.Init(schedulingPeriod.startDate, schedulingPeriod.endDate,

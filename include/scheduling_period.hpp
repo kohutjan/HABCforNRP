@@ -27,8 +27,8 @@ class SchedulingPeriod
     std::map<int, Employee> employees;
     std::map<int, Contract> contracts;
     std::map<int, Pattern> patterns;
-    std::map<std::string, std::pair<char, int>> dayOfWeekCover;
-    std::map<std::string, std::pair<char, int>> dateSpecificCover;
+    std::map<std::string, std::map<char, int>> dayOfWeekCover;
+    std::map<std::string, std::map<char, int>> dateSpecificCover;
     ~SchedulingPeriod(){}
   private:
     void LoadPeriod(std::ifstream &periodStream);

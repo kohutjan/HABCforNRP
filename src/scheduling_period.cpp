@@ -196,15 +196,15 @@ void SchedulingPeriod::LoadCover(ifstream &periodStream, bool day)
     periodStream >> ignore;
     if (day)
     {
-      this->dayOfWeekCover[dateDay] = make_pair(shiftType, numberOfEmployees);
-      cout << dateDay << ", " << this->dayOfWeekCover[dateDay].first << ", ";
-      cout << this->dayOfWeekCover[dateDay].second << endl;
+      this->dayOfWeekCover[dateDay][shiftType] = numberOfEmployees;
+      cout << dateDay << ", " << shiftType << ", ";
+      cout << this->dayOfWeekCover[dateDay][shiftType] << endl;
     }
     else
     {
-      this->dateSpecificCover[dateDay] = make_pair(shiftType, numberOfEmployees);
-      cout << dateDay << ", " << this->dateSpecificCover[dateDay].first << ", ";
-      cout << this->dateSpecificCover[dateDay].second << endl;
+      this->dateSpecificCover[dateDay][shiftType] = numberOfEmployees;
+      cout << dateDay << ", " << shiftType << ", ";
+      cout << this->dateSpecificCover[dateDay][shiftType] << endl;
     }
   }
   return;

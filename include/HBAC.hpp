@@ -2,6 +2,7 @@
 #define HBAC_HPP
 
 #include <iostream>
+#include <vector>
 #include <eigen3/Eigen/Dense>
 
 #include "scheduling_period.hpp"
@@ -15,10 +16,13 @@ class HBAC
     {
       schedulingPeriod = _schedulingPeriod;
     }
-    void InitRosters();
+    void InitRosters(int numberOfRosters);
+    void TestRosters();
     ~HBAC(){}
   private:
+    int ObjectiveFunction(Roster roster);
     SchedulingPeriod schedulingPeriod;
+    std::vector<Roster> rosters;
 };
 
 #endif

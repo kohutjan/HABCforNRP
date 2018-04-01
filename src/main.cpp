@@ -48,7 +48,8 @@ int main(int argc, char **argv)
   schedulingPeriod.Load(periodFilePath);
   HBAC hbac;
   hbac.setSchedulingPeriod(schedulingPeriod);
-  hbac.InitRosters();
+  hbac.InitRosters(1);
+  hbac.TestRosters();
 
   return 0;
 }

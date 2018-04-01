@@ -25,48 +25,92 @@ void Roster::Init(date startDate, date endDate,
                                                          '-');
   this->InitSumOfDemands(shifts, dayOfWeekCover);
   this->InitShiftOrdering();
-  this->AssignShift('N', dayOfWeekCover, dateSpecificCover);
-  for (auto& shift: this->shiftOrdering)
+  for (auto& shiftType: this->shiftOrdering)
   {
+    this->AssignShift(shiftType, dayOfWeekCover, dateSpecificCover);
   }
 }
 
 void Roster::AssignShift(char shiftType, map<string, map<char, int>> dayOfWeekCover,
                          map<string, map<char, int>> dateSpecificCover)
 {
-  for (size_t i = 0; i < this->dates.size(); ++i)
+  for (size_t dateIndex = 0; dateIndex < this->dates.size(); ++dateIndex)
   {
-    map<char, int> dateCover;
-    dateCover = this->GetDateCover(this->dates[i], dateSpecificCover);
-    if (!dateCover.empty())
+    int dateCover;
+    dateCover = this->GetDateCover(this->dates[dateIndex], shiftType, dateSpecificCover);
+    if (dateCover != 0)
     {
-      this->AssignShiftToDate(this->dates[i], shiftType, dateCover);
+      this->AssignShiftToDate(dateIndex, shiftType, dateCover);
     }
     else
     {
-      map<char, int> dayCover;
-      dayCover = this->GetDayCover(this->dates[i], dayOfWeekCover);
-      if (!dayCover.empty())
+      int dayCover;
+      dayCover = this->GetDayCover(dateIndex, shiftType, dayOfWeekCover);
+      if (dayCover != 0)
       {
-        this->AssignShiftToDate(this->dates[i], shiftType, dayCover);
+        this->AssignShiftToDate(dateIndex, shiftType, dayCover);
       }
     }
   }
 }
 
-void Roster::AssignShiftToDate(date specificDate, char shiftType, map<char, int> cover)
+void Roster::AssignShiftToDate(int dateIndex, char shiftType, int cover)
 {
-  
+  vector<int> freeEmployeesIndexes;
+  random_device rd;
+  mt19937 eng(rd());
+
+  for (int i = 0; i < this->table.rows(); ++i)
+  {
+    if (this->table.col(dateIndex)[i] == '-')
+    {
+      freeEmployeesIndexes.push_back(i);
+    }
+  }
+  size_t numberOfFreeEmployees = freeEmployeesIndexes.size();
+  for (size_t i = 0; i < numberOfFreeEmployees; i++)
+  {
+    uniform_int_distribution<> distr(0, numberOfFreeEmployees - i - 1);
+    int j = distr(eng);
+    if (j != 0)
+    {
+      swap(freeEmployeesIndexes[i], freeEmployeesIndexes[i + j]);
+    }
+  }
+  for (int i = 0; i < cover; ++i)
+  {
+    this->table.col(dateIndex)[freeEmployeesIndexes[i]] = shiftType;
+  }
 }
 
-map<char, int> Roster::GetDateCover(date specificDate, map<string, map<char, int>> dateSpecificCover)
+int Roster::GetDateCover(date specificDate, char shiftType, map<string, map<char, int>> dateSpecificCover)
 {
-
+  for (auto& dateCover: dateSpecificCover)
+  {
+    if (from_simple_string(dateCover.first) == specificDate)
+    {
+      if (dateCover.second.count(shiftType) > 0)
+      {
+        return dateCover.second[shiftType];
+      }
+    }
+  }
+  return 0;
 }
 
-map<char, int> Roster::GetDayCover(date specificDate, map<string, map<char, int>> dateSpecificCover)
+int Roster::GetDayCover(int dateIndex, char shiftType, map<string, map<char, int>> dayOfWeekCover)
 {
-
+  for (auto& dayCover: dayOfWeekCover)
+  {
+    if (this->daysOfWeek[dateIndex].as_long_string() == dayCover.first)
+    {
+      if (dayCover.second.count(shiftType) > 0)
+      {
+        return dayCover.second[shiftType];
+      }
+    }
+  }
+  return 0;
 }
 
 void Roster::InitSumOfDemands(map<char, Shift> shifts,
@@ -124,7 +168,8 @@ void Roster::Print()
   }
   cout << endl;
   cout << endl;
-  cout << this->table.rows() << ", " << this->table.cols() << endl;
+  cout << "Matrix dimension: " <<  this->table.rows() << ", " << this->table.cols() << endl;
+  cout << endl;
   cout << this->table << endl;
   cout << endl;
 }

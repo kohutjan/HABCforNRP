@@ -29,12 +29,11 @@ class Roster
     void AssignShift(char shiftType,
                      std::map<std::string, std::map<char, int>> dayOfWeekCover,
                      std::map<std::string, std::map<char, int>> dateSpecificCover);
-    void AssignShiftToDate(boost::gregorian::date specificDate, char shiftType,
-                           std::map<char, int> cover);
-    std::map<char, int> GetDateCover(boost::gregorian::date specificDate,
-                                     std::map<std::string, std::map<char, int>> dateSpecificCover);
-    std::map<char, int> GetDayCover(boost::gregorian::date specificDate,
-                                    std::map<std::string, std::map<char, int>> dateSpecificCover);
+    void AssignShiftToDate(int dateIndex, char shiftType, int cover);
+    int GetDateCover(boost::gregorian::date specificDate, char shiftType,
+                     std::map<std::string, std::map<char, int>> dateSpecificCover);
+    int GetDayCover(int dateIndex, char shiftType,
+                    std::map<std::string, std::map<char, int>> dateSpecificCover);
     std::vector<int> employeeIds;
     std::vector<boost::gregorian::date> dates;
     std::vector<boost::gregorian::greg_weekday> daysOfWeek;

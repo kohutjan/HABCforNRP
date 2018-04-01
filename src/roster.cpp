@@ -1,3 +1,5 @@
+#define NOT_FOUND -1
+
 #include "roster.hpp"
 
 using namespace std;
@@ -38,7 +40,7 @@ void Roster::AssignShift(char shiftType, map<string, map<char, int>> dayOfWeekCo
   {
     int dateCover;
     dateCover = this->GetDateCover(this->dates[dateIndex], shiftType, dateSpecificCover);
-    if (dateCover != 0)
+    if (dateCover != NOT_FOUND)
     {
       this->AssignShiftToDate(dateIndex, shiftType, dateCover);
     }
@@ -46,7 +48,7 @@ void Roster::AssignShift(char shiftType, map<string, map<char, int>> dayOfWeekCo
     {
       int dayCover;
       dayCover = this->GetDayCover(dateIndex, shiftType, dayOfWeekCover);
-      if (dayCover != 0)
+      if (dayCover != NOT_FOUND && dayCover != 0)
       {
         this->AssignShiftToDate(dateIndex, shiftType, dayCover);
       }
@@ -56,6 +58,11 @@ void Roster::AssignShift(char shiftType, map<string, map<char, int>> dayOfWeekCo
 
 void Roster::AssignShiftToDate(int dateIndex, char shiftType, int cover)
 {
+  if (cover == 0)
+  {
+    return;
+  }
+
   vector<int> freeEmployeesIndexes;
   random_device rd;
   mt19937 eng(rd());
@@ -95,7 +102,7 @@ int Roster::GetDateCover(date specificDate, char shiftType, map<string, map<char
       }
     }
   }
-  return 0;
+  return NOT_FOUND;
 }
 
 int Roster::GetDayCover(int dateIndex, char shiftType, map<string, map<char, int>> dayOfWeekCover)
@@ -110,7 +117,7 @@ int Roster::GetDayCover(int dateIndex, char shiftType, map<string, map<char, int
       }
     }
   }
-  return 0;
+  return NOT_FOUND;
 }
 
 void Roster::InitSumOfDemands(map<char, Shift> shifts,

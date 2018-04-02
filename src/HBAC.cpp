@@ -1,6 +1,7 @@
 #include "HBAC.hpp"
 
 using namespace std;
+using namespace boost::gregorian;
 
 void HBAC::InitRosters(int numberOfRosters)
 {
@@ -19,6 +20,14 @@ void HBAC::InitRosters(int numberOfRosters)
 int HBAC::ObjectiveFunction(Roster roster)
 {
   int penalty = 0;
+  cout << endl;
+  cout << "daysOfWeek" << endl;
+  for (auto& day: roster.daysOfWeek)
+  {
+    cout << day << " ";
+  }
+  cout << endl;
+  cout << endl;
   for (int i = 0; i < roster.table.rows(); ++i)
   {
     int employeeContractId = this->schedulingPeriod.employees[roster.employeeIds[i]].contractId;
@@ -34,6 +43,9 @@ int HBAC::ObjectiveFunction(Roster roster)
     penalty += this->CheckConsecutiveFreeDays(roster.table.row(i),
                                               employeeContract.maxConsecutiveFreeDays,
                                               employeeContract.minConsecutiveFreeDays);
+    penalty += this->CheckConsecutiveWorkingWeekends(roster.table.row(i), roster.daysOfWeek,
+                                                     employeeContract.maxConsecutiveWorkingWeekends,
+                                                     employeeContract.minConsecutiveWorkingWeekends);
     cout << "------------------------------------" << endl;
   }
   return penalty;
@@ -96,6 +108,60 @@ int HBAC::CheckConsecutiveFreeDays(Row employeesShifts,
                                     maxConsecutiveFreeDays, minConsecutiveFreeDays);
 }
 
+int HBAC::CheckConsecutiveWorkingWeekends(Row employeesShifts,
+                                          vector<greg_weekday> daysOfWeek,
+                                          Constrain maxConsecutiveWorkingWeekends,
+                                          Constrain minConsecutiveWorkingWeekends)
+{
+  cout << "CheckConsecutiveWorkingWeekends" << endl;
+  int penalty = 0;
+  if ((!maxConsecutiveWorkingWeekends.on) && (!minConsecutiveWorkingWeekends.on))
+  {
+    cout << "none" << endl;
+    return 0;
+  }
+  int actualConsecutive = 0;
+  for (int i = 0; i < employeesShifts.size(); ++i)
+  {
+    if (daysOfWeek[i] == boost::date_time::Saturday)
+    {
+      if ((i + 1) < employeesShifts.size())
+      {
+        if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-')
+        {
+          ++actualConsecutive;
+        }
+        else
+        {
+          if (actualConsecutive != 0)
+          {
+            penalty += this->CheckConsecutive(actualConsecutive,
+                                              maxConsecutiveWorkingWeekends,
+                                              minConsecutiveWorkingWeekends);
+            actualConsecutive = 0;
+          }
+        }
+      }
+    }
+  }
+  if (actualConsecutive > 0)
+  {
+    penalty += this->CheckConsecutive(actualConsecutive,
+                                      maxConsecutiveWorkingWeekends,
+                                      minConsecutiveWorkingWeekends);
+  }
+  if (maxConsecutiveWorkingWeekends.on)
+  {
+    cout << "Max: " << maxConsecutiveWorkingWeekends.value << endl;
+  }
+  if (minConsecutiveWorkingWeekends.on)
+  {
+    cout << "Min: " << minConsecutiveWorkingWeekends.value << endl;
+  }
+  cout << "penalty: " << penalty << endl;
+  return penalty;
+}
+
 int HBAC::CheckConsecutiveDays(bool working, Row employeesShifts,
                                Constrain maxConsecutiveDays,
                                Constrain minConsecutiveDays)
@@ -140,22 +206,22 @@ int HBAC::CheckConsecutiveDays(bool working, Row employeesShifts,
   return penalty;
 }
 
-int HBAC::CheckConsecutive(int actualConsecutive, Constrain maxConsecutiveDays,
-                           Constrain minConsecutiveDays)
+int HBAC::CheckConsecutive(int actualConsecutive, Constrain maxConsecutive,
+                           Constrain minConsecutive)
 {
   int penalty = 0;
-  if (maxConsecutiveDays.on)
+  if (maxConsecutive.on)
   {
-    if (actualConsecutive > maxConsecutiveDays.value)
+    if (actualConsecutive > maxConsecutive.value)
     {
-      penalty += maxConsecutiveDays.weight;
+      penalty += maxConsecutive.weight;
     }
   }
-  if (minConsecutiveDays.on)
+  if (minConsecutive.on)
   {
-    if (actualConsecutive < minConsecutiveDays.value)
+    if (actualConsecutive < minConsecutive.value)
     {
-      penalty += minConsecutiveDays.weight;
+      penalty += minConsecutive.weight;
     }
   }
   return penalty;

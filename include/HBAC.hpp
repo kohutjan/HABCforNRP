@@ -27,10 +27,15 @@ class HBAC
     int CheckConsecutiveFreeDays(Row employeesShifts,
                                  Constrain maxConsecutiveFreeDays,
                                  Constrain minConsecutiveFreeDays);
+    int CheckConsecutiveWorkingWeekends(Row employeesShifts,
+                                        std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                                        Constrain maxConsecutiveWorkingWeekends,
+                                        Constrain minConsecutiveWorkingWeekends);
     int CheckConsecutiveDays(bool working, Row employeesShifts,
                              Constrain maxConsecutiveDays, Constrain minConsecutiveDays);
     int CheckConsecutive(int actualConsecutive, Constrain maxConsecutiveDays,
                          Constrain minConsecutiveDays);
+
     void TestRosters();
     ~HBAC(){}
   private:

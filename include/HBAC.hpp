@@ -8,6 +8,8 @@
 #include "scheduling_period.hpp"
 #include "roster.hpp"
 
+typedef Eigen::DenseBase<Eigen::Matrix<char, -1, -1>>::RowXpr Row;
+
 class HBAC
 {
   public:
@@ -17,6 +19,18 @@ class HBAC
       schedulingPeriod = _schedulingPeriod;
     }
     void InitRosters(int numberOfRosters);
+    int CheckNumAssigments(Row employeesShifts, Constrain maxNumAssignments,
+                           Constrain minNumAssignments);
+    int CheckConsecutiveWorkingDays(Row employeesShifts,
+                                    Constrain maxConsecutiveWorkingDays,
+                                    Constrain minConsecutiveWorkingDays);
+    int CheckConsecutiveFreeDays(Row employeesShifts,
+                                 Constrain maxConsecutiveFreeDays,
+                                 Constrain minConsecutiveFreeDays);
+    int CheckConsecutiveDays(bool working, Row employeesShifts,
+                             Constrain maxConsecutiveDays, Constrain minConsecutiveDays);
+    int CheckConsecutive(int actualConsecutive, Constrain maxConsecutiveDays,
+                         Constrain minConsecutiveDays);
     void TestRosters();
     ~HBAC(){}
   private:

@@ -19,6 +19,7 @@ class Roster
               std::map<int, Employee> employees, std::map<char, Shift> shifts,
               std::map<std::string, std::map<char, int>> dayOfWeekCover,
               std::map<std::string, std::map<char, int>> dateSpecificCover);
+    std::vector<int> employeeIds;
     Eigen::Matrix<char, Eigen::Dynamic, Eigen::Dynamic> table;
     void Print();
     ~Roster(){}
@@ -34,7 +35,6 @@ class Roster
                      std::map<std::string, std::map<char, int>> dateSpecificCover);
     int GetDayCover(int dateIndex, char shiftType,
                     std::map<std::string, std::map<char, int>> dateSpecificCover);
-    std::vector<int> employeeIds;
     std::vector<boost::gregorian::date> dates;
     std::vector<boost::gregorian::greg_weekday> daysOfWeek;
     std::map<char, int> sumOfDemands;

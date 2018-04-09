@@ -30,7 +30,8 @@ int HBAC::ObjectiveFunction(Roster roster)
   cout << endl;
   for (int i = 0; i < roster.table.rows(); ++i)
   {
-    int employeeContractId = this->schedulingPeriod.employees[roster.employeeIds[i]].contractId;
+    Employee employee = this->schedulingPeriod.employees[roster.employeeIds[i]];
+    int employeeContractId = employee.contractId;
     Contract employeeContract = this->schedulingPeriod.contracts[employeeContractId];
     cout << endl;
     cout << "employee id: " << roster.employeeIds[i] << endl;
@@ -58,6 +59,8 @@ int HBAC::ObjectiveFunction(Roster roster)
                                                         employeeContract.noNightShiftBeforeFreeWeekend);
     penalty += this->CheckTwoFreeDaysAfterNightShifts(roster.table.row(i),
                                                       employeeContract.twoFreeDaysAfterNightShifts);
+    penalty += this->CheckRequestedDays(roster.table.row(i), roster.dates, employee);
+    penalty += this->CheckRequstedShifts(roster.table.row(i), roster.dates, employee);
     cout << "------------------------------------" << endl;
   }
   return penalty;
@@ -344,6 +347,75 @@ int HBAC::CheckTwoFreeDaysAfterNightShifts(Row employeesShifts,
   cout << "penalty: " << penalty << endl;
   return penalty;
 }
+
+
+int HBAC::CheckRequestedDays(Row employeesShifts, vector<date> dates, Employee employee)
+{
+  cout << "CheckRequestedDays" << endl;
+  int penalty = 0;
+  for (int i = 0; i < employeesShifts.size(); ++i)
+  {
+    for (auto& dayOffRequest: employee.dayOffRequest)
+    {
+      if (dayOffRequest.first == dates[i])
+      {
+        if (employeesShifts[i] != '-')
+        {
+          penalty += dayOffRequest.second;
+        }
+      }
+    }
+    for (auto& dayOnRequest: employee.dayOnRequest)
+    {
+      if (dayOnRequest.first == dates[i])
+      {
+        if (employeesShifts[i] == '-')
+        {
+          penalty += dayOnRequest.second;
+        }
+      }
+    }
+  }
+  cout << "penalty: " << penalty << endl;
+  return penalty;
+}
+
+
+int HBAC::CheckRequstedShifts(Row employeesShifts, vector<date> dates, Employee employee)
+{
+  cout << "CheckRequestedShifts" << endl;
+  int penalty = 0;
+  for (int i = 0; i < employeesShifts.size(); ++i)
+  {
+    if (employee.shiftOffRequest.count(employeesShifts[i]) > 0)
+    {
+      for (auto& shiftOffRequest: employee.shiftOffRequest[employeesShifts[i]])
+      {
+        if (shiftOffRequest.first == dates[i])
+        {
+          penalty += shiftOffRequest.second;
+        }
+      }
+    }
+    for (auto& shiftOnRequest: employee.shiftOnRequest)
+    {
+      char shiftType = shiftOnRequest.first;
+      for (auto& onRequest: shiftOnRequest.second)
+      {
+        if (onRequest.first == dates[i])
+        {
+          if (employeesShifts[i] != shiftType)
+          {
+            penalty += onRequest.second;
+          }
+        }
+      }
+    }
+  }
+  cout << "penalty: " << penalty << endl;
+  return penalty;
+}
+
 
 int HBAC::CheckConsecutiveDays(bool working, Row employeesShifts,
                                Constrain maxConsecutiveDays,

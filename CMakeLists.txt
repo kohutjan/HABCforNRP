@@ -19,6 +19,7 @@ add_executable(nrp
                ${HBACforNRP_SRC_DIR}/scheduling_period/employee.cpp
                ${HBACforNRP_SRC_DIR}/roster.cpp
 	       ${HBACforNRP_SRC_DIR}/objective_function.cpp
+	       ${HBACforNRP_SRC_DIR}/neighbourhood.cpp
 	       ${HBACforNRP_SRC_DIR}/HBAC.cpp)
 
 target_link_libraries(nrp Boost::date_time)

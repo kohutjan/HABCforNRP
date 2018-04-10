@@ -65,12 +65,12 @@ void Employee::LoadShiftRequest(ifstream &periodStream, bool on)
   requestDateStr.pop_back();
   char shiftType;
   periodStream >> shiftType;
-  if (shiftType == 'D')
+  if (shiftType == DAY)
   {
     periodStream >> shiftType;
-    if (shiftType != 'H')
+    if (shiftType != HEAD_DAY)
     {
-      shiftType = 'D';
+      shiftType = DAY;
     }
     else
     {

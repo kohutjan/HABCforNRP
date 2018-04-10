@@ -190,12 +190,12 @@ void SchedulingPeriod::LoadCover(ifstream &periodStream, bool day)
     dateDay.pop_back();
     char shiftType;
     periodStream >> shiftType;
-    if (shiftType == 'D')
+    if (shiftType == DAY)
     {
       periodStream >> shiftType;
-      if (shiftType != 'H')
+      if (shiftType != HEAD_DAY)
       {
-        shiftType = 'D';
+        shiftType = DAY;
       }
       else
       {
@@ -211,9 +211,10 @@ void SchedulingPeriod::LoadCover(ifstream &periodStream, bool day)
     periodStream >> ignore;
     if (day)
     {
-      this->dayOfWeekCover[dateDay][shiftType] = numberOfEmployees;
+      char day = StrToDay(dateDay);
+      this->dayOfWeekCover[day][shiftType] = numberOfEmployees;
       cout << dateDay << ", " << shiftType << ", ";
-      cout << this->dayOfWeekCover[dateDay][shiftType] << endl;
+      cout << this->dayOfWeekCover[day][shiftType] << endl;
     }
     else
     {

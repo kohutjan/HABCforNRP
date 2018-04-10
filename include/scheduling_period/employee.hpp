@@ -9,6 +9,7 @@
 #include <iostream>
 #include "boost/date_time/gregorian/gregorian.hpp"
 
+#include "scheduling_period/shift.hpp"
 
 class Employee
 {

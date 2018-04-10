@@ -35,15 +35,43 @@ void Pattern::LoadShift(ifstream &periodStream)
     shiftStr.pop_back();
   }
   int delimiterPos = shiftStr.find("|");
-  string shiftType;
-  string shiftDay;
-  shiftType = shiftStr.substr(0, delimiterPos);
-  if (shiftType == "DH")
+  string shiftTypeStr;
+  string shiftDayStr;
+  char shiftType;
+  char shiftDay;
+  shiftTypeStr = shiftStr.substr(0, delimiterPos);
+  if (shiftTypeStr == "DH")
   {
-    shiftType = "H";
+    shiftType = HEAD_DAY;
   }
-  shiftDay = shiftStr.substr(delimiterPos + 1);
-  cout << "(" << shiftType << "|" << shiftDay << ") ";
+  else
+  {
+    if (shiftTypeStr == "None")
+    {
+      shiftType = NONE;
+    }
+    else
+    {
+      if (shiftTypeStr == "Any")
+      {
+        shiftType = ANY;
+      }
+      else
+      {
+        shiftType = shiftTypeStr.front();
+      }
+    }
+  }
+  shiftDayStr = shiftStr.substr(delimiterPos + 1);
+  if (shiftDayStr == "Any")
+  {
+    shiftDay = ANY;
+  }
+  else
+  {
+    shiftDay = StrToDay(shiftDayStr);
+  }
+  cout << "(" << shiftTypeStr << "|" << shiftDayStr << ") ";
   this->shifts.push_back(make_pair(shiftType, shiftDay));
   return;
 }

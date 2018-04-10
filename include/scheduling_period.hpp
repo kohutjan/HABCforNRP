@@ -27,7 +27,7 @@ class SchedulingPeriod
     std::map<int, Employee> employees;
     std::map<int, Contract> contracts;
     std::map<int, Pattern> patterns;
-    std::map<std::string, std::map<char, int>> dayOfWeekCover;
+    std::map<char, std::map<char, int>> dayOfWeekCover;
     std::map<std::string, std::map<char, int>> dateSpecificCover;
     ~SchedulingPeriod(){}
   private:

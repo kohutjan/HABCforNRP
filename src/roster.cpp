@@ -8,7 +8,7 @@ using namespace Eigen;
 
 void Roster::Init(date startDate, date endDate,
                   map<int, Employee> employees, map<char, Shift> shifts,
-                  map<string, map<char, int>> dayOfWeekCover,
+                  map<char, map<char, int>> dayOfWeekCover,
                   map<string, map<char, int>> dateSpecificCover)
 {
   for(auto& employee: employees)
@@ -19,12 +19,12 @@ void Roster::Init(date startDate, date endDate,
   for(day_iterator iter = startDate; iter != (endDate + days(1)); ++iter)
   {
     this->dates.push_back(*iter);
-    this->daysOfWeek.push_back(iter->day_of_week());
+    this->daysOfWeek.push_back(GregToDay(iter->day_of_week()));
   }
   date_duration rosterDuration = endDate - startDate;
   this->table = Matrix<char, Dynamic, Dynamic>::Constant(employees.size(),
                                                          rosterDuration.days() + 1,
-                                                         '-');
+                                                         NONE);
   this->InitSumOfDemands(shifts, dayOfWeekCover);
   this->InitShiftOrdering();
   for (auto& shiftType: this->shiftOrdering)
@@ -33,7 +33,7 @@ void Roster::Init(date startDate, date endDate,
   }
 }
 
-void Roster::AssignShift(char shiftType, map<string, map<char, int>> dayOfWeekCover,
+void Roster::AssignShift(char shiftType, map<char, map<char, int>> dayOfWeekCover,
                          map<string, map<char, int>> dateSpecificCover)
 {
   for (size_t dateIndex = 0; dateIndex < this->dates.size(); ++dateIndex)
@@ -69,7 +69,7 @@ void Roster::AssignShiftToDate(int dateIndex, char shiftType, int cover)
 
   for (int i = 0; i < this->table.rows(); ++i)
   {
-    if (this->table.col(dateIndex)[i] == '-')
+    if (this->table.col(dateIndex)[i] == NONE)
     {
       freeEmployeesIndexes.push_back(i);
     }
@@ -105,11 +105,11 @@ int Roster::GetDateCover(date specificDate, char shiftType, map<string, map<char
   return NOT_FOUND;
 }
 
-int Roster::GetDayCover(int dateIndex, char shiftType, map<string, map<char, int>> dayOfWeekCover)
+int Roster::GetDayCover(int dateIndex, char shiftType, map<char, map<char, int>> dayOfWeekCover)
 {
   for (auto& dayCover: dayOfWeekCover)
   {
-    if (this->daysOfWeek[dateIndex].as_long_string() == dayCover.first)
+    if (this->daysOfWeek[dateIndex] == dayCover.first)
     {
       if (dayCover.second.count(shiftType) > 0)
       {
@@ -121,7 +121,7 @@ int Roster::GetDayCover(int dateIndex, char shiftType, map<string, map<char, int
 }
 
 void Roster::InitSumOfDemands(map<char, Shift> shifts,
-                              map<string, map<char, int>> dayOfWeekCover)
+                              map<char, map<char, int>> dayOfWeekCover)
 {
   for (auto& shift: shifts)
   {

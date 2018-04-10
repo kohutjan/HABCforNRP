@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "scheduling_period/days.hpp"
+#include "scheduling_period/shift.hpp"
 
 class Pattern
 {
@@ -15,7 +17,7 @@ class Pattern
     void LoadFromStream(std::ifstream &periodStream);
     int id;
     int weight;
-    std::vector<std::pair<std::string, std::string>> shifts;
+    std::vector<std::pair<char, char>> shifts;
     ~Pattern(){}
   private:
     void LoadShift(std::ifstream &periodStream);

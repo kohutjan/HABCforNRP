@@ -190,7 +190,22 @@ void SchedulingPeriod::LoadCover(ifstream &periodStream, bool day)
     dateDay.pop_back();
     char shiftType;
     periodStream >> shiftType;
-    periodStream >> ignore;
+    if (shiftType == 'D')
+    {
+      periodStream >> shiftType;
+      if (shiftType != 'H')
+      {
+        shiftType = 'D';
+      }
+      else
+      {
+        periodStream >> ignore;
+      }
+    }
+    else
+    {
+      periodStream >> ignore;
+    }
     int numberOfEmployees;
     periodStream >> numberOfEmployees;
     periodStream >> ignore;

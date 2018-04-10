@@ -20,6 +20,7 @@ class Employee
     int id;
     std::string name;
     int contractId;
+    std::vector<std::string> skills;
     std::vector<std::pair<boost::gregorian::date, int>> dayOffRequest;
     std::vector<std::pair<boost::gregorian::date, int>> dayOnRequest;
     std::map<char, std::vector<std::pair<boost::gregorian::date, int>>> shiftOffRequest;

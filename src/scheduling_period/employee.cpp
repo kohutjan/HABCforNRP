@@ -15,10 +15,23 @@ void Employee::LoadFromStream(ifstream &periodStream)
   this->name.pop_back();
   cout << this->name << ", ";
   periodStream >> this->contractId;
-  cout << this->contractId << endl;
+  cout << this->contractId;
   periodStream >> ignore;
+  int numberOfSkills;
+  periodStream >> numberOfSkills;
   periodStream >> ignore;
-  periodStream >> ignore;
+  string skill;
+  for (int i = 0; i < (numberOfSkills - 1); ++i)
+  {
+    periodStream >> skill;
+    this->skills.push_back(skill);
+    cout << ", " << this->skills[i];
+  }
+  periodStream >> skill;
+  skill.pop_back();
+  this->skills.push_back(skill);
+  cout << ", " << this->skills.back();
+  cout << endl;
   return;
 }
 

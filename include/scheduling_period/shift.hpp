@@ -18,6 +18,7 @@ class Shift
     char id;
     boost::posix_time::time_duration startTime;
     boost::posix_time::time_duration endTime;
+    std::vector<std::string> skills;
     ~Shift(){}
 };
 

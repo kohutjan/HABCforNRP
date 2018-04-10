@@ -38,6 +38,10 @@ void Pattern::LoadShift(ifstream &periodStream)
   string shiftType;
   string shiftDay;
   shiftType = shiftStr.substr(0, delimiterPos);
+  if (shiftType == "DH")
+  {
+    shiftType = "H";
+  }
   shiftDay = shiftStr.substr(delimiterPos + 1);
   cout << "(" << shiftType << "|" << shiftDay << ") ";
   this->shifts.push_back(make_pair(shiftType, shiftDay));

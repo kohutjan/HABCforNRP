@@ -19,6 +19,10 @@ class HBAC
       schedulingPeriod = _schedulingPeriod;
     }
     void InitRosters(int numberOfRosters);
+    void TestRosters();
+    ~HBAC(){}
+  private:
+    int ObjectiveFunction(Roster roster);
     int CheckNumAssigments(Row employeesShifts, Constrain maxNumAssignments,
                            Constrain minNumAssignments);
     int CheckConsecutiveWorkingDays(Row employeesShifts,
@@ -49,15 +53,12 @@ class HBAC
                            Employee employee);
     int CheckRequstedShifts(Row employeesShifts, std::vector<boost::gregorian::date> dates,
                             Employee employee);
+    int CheckAlternativeSkillCategory(Row employeesShifts, Constrain alternativeSkillCategory,
+                                      std::map<char, Shift> shifts, Employee employee);
     int CheckConsecutiveDays(bool working, Row employeesShifts,
                              Constrain maxConsecutiveDays, Constrain minConsecutiveDays);
     int CheckConsecutive(int actualConsecutive, Constrain maxConsecutiveDays,
                          Constrain minConsecutiveDays);
-
-    void TestRosters();
-    ~HBAC(){}
-  private:
-    int ObjectiveFunction(Roster roster);
     SchedulingPeriod schedulingPeriod;
     std::vector<Roster> rosters;
 };

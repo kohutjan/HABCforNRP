@@ -8,6 +8,7 @@
 #include "scheduling_period.hpp"
 #include "roster.hpp"
 #include "objective_function.hpp"
+#include "neighbourhood.hpp"
 
 
 class HBAC

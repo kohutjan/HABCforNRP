@@ -11,7 +11,6 @@ void HBAC::InitRosters(int numberOfRosters)
                 this->schedulingPeriod.employees, this->schedulingPeriod.shifts,
                 this->schedulingPeriod.dayOfWeekCover,
                 this->schedulingPeriod.dateSpecificCover);
-    roster.Print();
     this->rosters.push_back(roster);
   }
 }
@@ -20,15 +19,24 @@ void HBAC::TestRosters()
 {
   int index = 0;
   ObjectiveFunction objectiveFunction(this->schedulingPeriod);
-  for (auto& roster: rosters)
+  Neighbourhood neighbourhood;
+  for (auto& roster: this->rosters)
   {
     int penalty = objectiveFunction.CountPenalty(roster);
+    Roster newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
+    int newPenalty = objectiveFunction.CountPenalty(newRoster);
+    roster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for roster " << index << ": " << penalty;
     cout << endl;
     cout << endl;
+    newRoster.Print();
+    cout << endl;
+    cout << endl;
+    cout << "Objective function output for new roster " << index << ": " << newPenalty;
+    cout << endl;
+    cout << endl;
     ++index;
   }
-
 }

@@ -1,7 +1,6 @@
 #ifndef CONSTRAIN_HPP
 #define CONSTARIN_HPP
 
-
 class Constrain
 {
   public:

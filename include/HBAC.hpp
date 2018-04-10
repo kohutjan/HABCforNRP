@@ -33,19 +33,24 @@ class HBAC
                                  Constrain minConsecutiveFreeDays);
     int CheckConsecutiveWorkingWeekends(Row employeesShifts,
                                         std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                                        int weekendDefinition,
                                         Constrain maxConsecutiveWorkingWeekends,
                                         Constrain minConsecutiveWorkingWeekends);
     int CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
                                            std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                                           int weekendDefinition,
                                            Constrain maxWorkingWeekendsInFourWeeks);
     int CheckCompleteWeekends(Row employeesShifts,
                               std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                              int weekendDefinition,
                               Constrain completeWeekends);
     int CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
                                           std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                                          int weekendDefinition,
                                           Constrain identShiftTypesDuringWeekend);
     int CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
                                            std::vector<boost::gregorian::greg_weekday> daysOfWeek,
+                                           int weekendDefinition,
                                            Constrain noNightShiftBeforeFreeWeekend);
     int CheckTwoFreeDaysAfterNightShifts(Row employeesShifts,
                                          Constrain twoFreeDaysAfterNightShifts);

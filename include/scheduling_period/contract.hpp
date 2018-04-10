@@ -1,6 +1,9 @@
 #ifndef CONTRACT_HPP
 #define CONTRACT_HPP
 
+#define SS 47
+#define FSS 48
+
 #include <string>
 #include <vector>
 #include <fstream>
@@ -26,7 +29,7 @@ class Contract
     Constrain maxConsecutiveWorkingWeekends;
     Constrain minConsecutiveWorkingWeekends;
     Constrain maxWorkingWeekendsInFourWeeks;
-    std::string weekendDefinition;
+    int weekendDefinition;
     Constrain completeWeekends;
     Constrain identShiftTypesDuringWeekend;
     Constrain noNightShiftBeforeFreeWeekend;

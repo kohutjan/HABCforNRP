@@ -23,9 +23,21 @@ void Contract::LoadFromStream(ifstream &periodStream)
   this->maxConsecutiveWorkingWeekends = this->LoadConstrain(periodStream);
   this->minConsecutiveWorkingWeekends = this->LoadConstrain(periodStream);
   this->maxWorkingWeekendsInFourWeeks = this->LoadConstrain(periodStream);
-  periodStream >> this->weekendDefinition;
-  this->weekendDefinition.pop_back();
-  cout << this->weekendDefinition << ", ";
+  string weekendDefinitionStr;
+  periodStream >> weekendDefinitionStr;
+  weekendDefinitionStr.pop_back();
+  if (weekendDefinitionStr == "SaturdaySunday")
+  {
+    this->weekendDefinition = SS;
+  }
+  else
+  {
+    if (weekendDefinitionStr == "FridaySaturdaySunday")
+    {
+      this->weekendDefinition = FSS;
+    }
+  }
+  cout << weekendDefinitionStr << ", ";
   this->completeWeekends = this->LoadConstrain(periodStream);
   this->identShiftTypesDuringWeekend = this->LoadConstrain(periodStream);
   this->noNightShiftBeforeFreeWeekend = this->LoadConstrain(periodStream);

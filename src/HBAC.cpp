@@ -45,17 +45,22 @@ int HBAC::ObjectiveFunction(Roster roster)
                                               employeeContract.maxConsecutiveFreeDays,
                                               employeeContract.minConsecutiveFreeDays);
     penalty += this->CheckConsecutiveWorkingWeekends(roster.table.row(i), roster.daysOfWeek,
+                                                     employeeContract.weekendDefinition,
                                                      employeeContract.maxConsecutiveWorkingWeekends,
                                                      employeeContract.minConsecutiveWorkingWeekends);
     penalty += this->CheckMaxWorkingWeekendsInFourWeeks(roster.table.row(i), roster.daysOfWeek,
+                                                        employeeContract.weekendDefinition,
                                                         employeeContract.maxWorkingWeekendsInFourWeeks);
     penalty += this->CheckCompleteWeekends(roster.table.row(i), roster.daysOfWeek,
+                                           employeeContract.weekendDefinition,
                                            employeeContract.completeWeekends);
     penalty += this->CheckIdentShiftTypesDuringWeekend(roster.table.row(i),
                                                        roster.daysOfWeek,
+                                                       employeeContract.weekendDefinition,
                                                        employeeContract.identShiftTypesDuringWeekend);
     penalty += this->CheckNoNightShiftBeforeFreeWeekend(roster.table.row(i),
                                                         roster.daysOfWeek,
+                                                        employeeContract.weekendDefinition,
                                                         employeeContract.noNightShiftBeforeFreeWeekend);
     penalty += this->CheckTwoFreeDaysAfterNightShifts(roster.table.row(i),
                                                       employeeContract.twoFreeDaysAfterNightShifts);
@@ -128,6 +133,7 @@ int HBAC::CheckConsecutiveFreeDays(Row employeesShifts,
 
 int HBAC::CheckConsecutiveWorkingWeekends(Row employeesShifts,
                                           vector<greg_weekday> daysOfWeek,
+                                          int weekendDefinition,
                                           Constrain maxConsecutiveWorkingWeekends,
                                           Constrain minConsecutiveWorkingWeekends)
 {
@@ -139,25 +145,57 @@ int HBAC::CheckConsecutiveWorkingWeekends(Row employeesShifts,
     return 0;
   }
   int actualConsecutive = 0;
-  for (int i = 0; i < employeesShifts.size(); ++i)
+  if (weekendDefinition == SS)
   {
-    if (daysOfWeek[i] == boost::date_time::Saturday)
+    for (int i = 0; i < employeesShifts.size(); ++i)
     {
-      if ((i + 1) < employeesShifts.size())
+      if (daysOfWeek[i] == boost::date_time::Saturday)
       {
-        if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-')
+        if ((i + 1) < employeesShifts.size())
         {
-          ++actualConsecutive;
-        }
-        else
-        {
-          if (actualConsecutive != 0)
+          if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-')
           {
-            penalty += this->CheckConsecutive(actualConsecutive,
-                                              maxConsecutiveWorkingWeekends,
-                                              minConsecutiveWorkingWeekends);
-            actualConsecutive = 0;
+            ++actualConsecutive;
           }
+          else
+          {
+            if (actualConsecutive != 0)
+            {
+              penalty += this->CheckConsecutive(actualConsecutive,
+                                                maxConsecutiveWorkingWeekends,
+                                                minConsecutiveWorkingWeekends);
+              actualConsecutive = 0;
+            }
+          }
+          ++i;
+        }
+      }
+    }
+  }
+  if (weekendDefinition == FSS)
+  {
+    for (int i = 0; i < employeesShifts.size(); ++i)
+    {
+      if (daysOfWeek[i] == boost::date_time::Friday)
+      {
+        if ((i + 2) < employeesShifts.size())
+        {
+          if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-'
+              && employeesShifts[i + 2] != '-')
+          {
+            ++actualConsecutive;
+          }
+          else
+          {
+            if (actualConsecutive != 0)
+            {
+              penalty += this->CheckConsecutive(actualConsecutive,
+                                                maxConsecutiveWorkingWeekends,
+                                                minConsecutiveWorkingWeekends);
+              actualConsecutive = 0;
+            }
+          }
+          i += 2;
         }
       }
     }
@@ -182,6 +220,7 @@ int HBAC::CheckConsecutiveWorkingWeekends(Row employeesShifts,
 
 int HBAC::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
                                              vector<greg_weekday> daysOfWeek,
+                                             int weekendDefinition,
                                              Constrain maxWorkingWeekendsInFourWeeks)
 {
   cout << "CheckMaxWorkingWeekendsInFourWeeks" << endl;
@@ -192,17 +231,38 @@ int HBAC::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
     return 0;
   }
   int numberOfWorkingWeeks = 0;
-  for (int i = 0; i < employeesShifts.size(); ++i)
+  if (weekendDefinition == SS)
   {
-    if (daysOfWeek[i] == boost::date_time::Saturday)
+    for (int i = 0; i < employeesShifts.size(); ++i)
     {
-      if ((i + 1) < employeesShifts.size())
+      if (daysOfWeek[i] == boost::date_time::Saturday)
       {
-        if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-')
+        if ((i + 1) < employeesShifts.size())
         {
-          ++numberOfWorkingWeeks;
+          if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-')
+          {
+            ++numberOfWorkingWeeks;
+          }
+          ++i;
         }
-        ++i;
+      }
+    }
+  }
+  if (weekendDefinition == FSS)
+  {
+    for (int i = 0; i < employeesShifts.size(); ++i)
+    {
+      if (daysOfWeek[i] == boost::date_time::Friday)
+      {
+        if ((i + 2) < employeesShifts.size())
+        {
+          if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-'
+              && employeesShifts[i + 2] != '-')
+          {
+            ++numberOfWorkingWeeks;
+          }
+          i += 2;
+        }
       }
     }
   }
@@ -210,14 +270,15 @@ int HBAC::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
   cout << "num: " << numberOfWorkingWeeks << endl;
   if (numberOfWorkingWeeks > maxWorkingWeekendsInFourWeeks.value)
   {
-    penalty += numberOfWorkingWeeks - maxWorkingWeekendsInFourWeeks.value;
+    penalty += maxWorkingWeekendsInFourWeeks.weight *
+               (numberOfWorkingWeeks - maxWorkingWeekendsInFourWeeks.value);
   }
   cout << "penalty: " << penalty << endl;
   return penalty;
 }
 
 int HBAC::CheckCompleteWeekends(Row employeesShifts, vector<greg_weekday> daysOfWeek,
-                                Constrain completeWeekends)
+                                int weekendDefinition, Constrain completeWeekends)
 {
   cout << "CheckCompleteWeekends" << endl;
   int penalty = 0;
@@ -226,21 +287,46 @@ int HBAC::CheckCompleteWeekends(Row employeesShifts, vector<greg_weekday> daysOf
     cout << "none" << endl;
     return 0;
   }
-  for (int i = 0; i < employeesShifts.size(); ++i)
+  if (weekendDefinition == SS)
   {
-    if (daysOfWeek[i] == boost::date_time::Saturday)
+    for (int i = 0; i < employeesShifts.size(); ++i)
     {
-      if ((i + 1) < employeesShifts.size())
+      if (daysOfWeek[i] == boost::date_time::Saturday)
       {
-        bool uncompleteWeekend = ((employeesShifts[i] == '-' &&
-                                 employeesShifts[i + 1] != '-') ||
-                                (employeesShifts[i] != '-' &&
-                                 employeesShifts[i + 1] == '-'));
-        if (uncompleteWeekend)
+        if ((i + 1) < employeesShifts.size())
         {
-          ++penalty;
+          bool uncompleteWeekend = ((employeesShifts[i] == '-' &&
+                                     employeesShifts[i + 1] != '-') ||
+                                    (employeesShifts[i] != '-' &&
+                                     employeesShifts[i + 1] == '-'));
+          if (uncompleteWeekend)
+          {
+            ++penalty;
+          }
+          ++i;
         }
-        ++i;
+      }
+    }
+  }
+  if (weekendDefinition == FSS)
+  {
+    for (int i = 0; i < employeesShifts.size(); ++i)
+    {
+      if (daysOfWeek[i] == boost::date_time::Friday)
+      {
+        if ((i + 2) < employeesShifts.size())
+        {
+          int freeDays = 0;
+          for (int j = 0; j < 3; ++j)
+          {
+            if (employeesShifts[i + j] == '-')
+            {
+              ++freeDays;
+            }
+          }
+          penalty += freeDays % 3;
+          i += 2;
+        }
       }
     }
   }
@@ -251,6 +337,7 @@ int HBAC::CheckCompleteWeekends(Row employeesShifts, vector<greg_weekday> daysOf
 
 int HBAC::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
                                             vector<greg_weekday> daysOfWeek,
+                                            int weekendDefinition,
                                             Constrain identShiftTypesDuringWeekend)
 {
   cout << "CheckIdentShiftTypesDuringWeekend" << endl;
@@ -260,19 +347,54 @@ int HBAC::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
     cout << "none" << endl;
     return 0;
   }
-  for (int i = 0; i < employeesShifts.size(); ++i)
+  if (weekendDefinition == SS)
   {
-    if (daysOfWeek[i] == boost::date_time::Saturday)
+    for (int i = 0; i < employeesShifts.size(); ++i)
     {
-      if ((i + 1) < employeesShifts.size())
+      if (daysOfWeek[i] == boost::date_time::Saturday)
       {
-        bool nonidentWeekend = ((employeesShifts[i] != employeesShifts[i + 1]) &&
-                                (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-'));
-        if (nonidentWeekend)
+        if ((i + 1) < employeesShifts.size())
         {
-          ++penalty;
+          bool nonidentWeekend = ((employeesShifts[i] != employeesShifts[i + 1]) &&
+                                  (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-'));
+          if (nonidentWeekend)
+          {
+            penalty += 2;
+          }
+          ++i;
         }
-        ++i;
+      }
+    }
+  }
+  if (weekendDefinition == FSS)
+  {
+    for (int i = 0; i < employeesShifts.size(); ++i)
+    {
+      if (daysOfWeek[i] == boost::date_time::Friday)
+      {
+        if ((i + 2) < employeesShifts.size())
+        {
+          if (employeesShifts[i] != '-' && employeesShifts[i + 1] != '-' && employeesShifts[i + 2] != '-')
+          {
+            char fridayShiftType = employeesShifts[i];
+            char saturdayShiftType = employeesShifts[i + 1];
+            char sundayShiftType = employeesShifts[i + 2];
+            if ((fridayShiftType != saturdayShiftType && fridayShiftType != sundayShiftType && saturdayShiftType != sundayShiftType) ||
+                (fridayShiftType != saturdayShiftType && fridayShiftType == sundayShiftType))
+            {
+              penalty += 2;
+            }
+            else
+            {
+              if ((fridayShiftType == saturdayShiftType && saturdayShiftType != sundayShiftType) ||
+                  (fridayShiftType != saturdayShiftType && saturdayShiftType == sundayShiftType))
+              {
+                ++penalty;
+              }
+            }
+          }
+          i += 2;
+        }
       }
     }
   }
@@ -283,6 +405,7 @@ int HBAC::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
 
 int HBAC::CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
                                              vector<greg_weekday> daysOfWeek,
+                                             int weekendDefinition,
                                              Constrain noNightShiftBeforeFreeWeekend)
 {
   cout << "CheckNoNightShiftBeforeFreeWeekend" << endl;
@@ -292,21 +415,47 @@ int HBAC::CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
     cout << "none" << endl;
     return 0;
   }
-  for (int i = 1; i < employeesShifts.size(); ++i)
+  if (weekendDefinition == SS)
   {
-    if (daysOfWeek[i] == boost::date_time::Saturday)
+    for (int i = 1; i < employeesShifts.size(); ++i)
     {
-      if ((i + 1) < employeesShifts.size())
+      if (daysOfWeek[i] == boost::date_time::Saturday)
       {
-        if (employeesShifts[i - 1] == 'N')
+        if ((i + 1) < employeesShifts.size())
         {
-          bool freeWeekend = (employeesShifts[i] == '-' && employeesShifts[i + 1] == '-');
-          if (freeWeekend)
+          if (employeesShifts[i - 1] == 'N')
           {
-            ++penalty;
+            bool freeWeekend = (employeesShifts[i] == '-' && employeesShifts[i + 1] == '-');
+            if (freeWeekend)
+            {
+              ++penalty;
+            }
           }
+          ++i;
         }
-        ++i;
+      }
+    }
+  }
+  if (weekendDefinition == FSS)
+  {
+    for (int i = 1; i < employeesShifts.size(); ++i)
+    {
+      if (daysOfWeek[i] == boost::date_time::Friday)
+      {
+        if ((i + 2) < employeesShifts.size())
+        {
+          if (employeesShifts[i - 1] == 'N')
+          {
+            bool freeWeekend = (employeesShifts[i] == '-' &&
+                                employeesShifts[i + 1] == '-' &&
+                                employeesShifts[i + 2] == '-');
+            if (freeWeekend)
+            {
+              ++penalty;
+            }
+          }
+          i += 2;
+        }
       }
     }
   }

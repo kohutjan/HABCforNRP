@@ -23,7 +23,7 @@ void HBAC::TestRosters()
   for (auto& roster: this->rosters)
   {
     int penalty = objectiveFunction.CountPenalty(roster);
-    Roster newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
+    Roster newRoster = neighbourhood.SwapPatternOfShifts(roster);
     int newPenalty = objectiveFunction.CountPenalty(newRoster);
     roster.Print();
     cout << endl;

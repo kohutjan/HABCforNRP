@@ -9,6 +9,7 @@
 
 #include "roster.hpp"
 
+typedef Eigen::DenseBase<Eigen::Matrix<char, -1, -1>>::RowXpr Row;
 typedef Eigen::DenseBase<Eigen::Matrix<char, -1, -1>>::ColXpr Col;
 
 class Neighbourhood
@@ -24,7 +25,9 @@ class Neighbourhood
     std::vector<int> GetNoneShiftIndexes(Col dayShifts);
     std::vector<int> GetAnyShiftIndexes(Col dayShifts);
     std::vector<int> GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char shiftType);
+    std::vector<int> GetRandomIndexes(int numberOfIndexes, int numberOfRandom);
     int GetRandom(int start, int end);
+
 };
 
 #endif

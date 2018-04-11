@@ -3,6 +3,18 @@
 using namespace std;
 
 
+void HBAC::Run()
+{
+  this->InitFood();
+  for (int i = 0; i < this->MCN; ++i)
+  {
+    this->SendEmployedBees();
+    this->SendOnlookerBees();
+    this->SendScoutBees();
+  }
+}
+
+
 void HBAC::InitFood()
 {
   for (int i = 0; i < this->SN; ++i)
@@ -25,7 +37,7 @@ void HBAC::InitFood()
 }
 
 
-void HBAC::EmployedBees()
+void HBAC::SendEmployedBees()
 {
   for (auto& roster: this->rosters)
   {
@@ -78,7 +90,7 @@ Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
 }
 
 
-void HBAC::OnlookerBees()
+void HBAC::SendOnlookerBees()
 {
   random_device rd;
   mt19937 eng(rd());
@@ -117,6 +129,22 @@ void HBAC::OnlookerBees()
   else
   {
     ++this->rosters[i].trial;
+  }
+}
+
+
+void HBAC::SendScoutBees()
+{
+  int randomRosterIndex = this->neighbourhood.GetRandom(0, this->SN - 1);
+  if (this->rosters[randomRosterIndex].trial >= limit)
+  {
+    Roster roster;
+    roster.Init(this->schedulingPeriod.startDate, this->schedulingPeriod.endDate,
+                this->schedulingPeriod.employees, this->schedulingPeriod.shifts,
+                this->schedulingPeriod.dayOfWeekCover,
+                this->schedulingPeriod.dateSpecificCover);
+    roster.penalty = this->objectiveFunction.Forward(roster);
+    this->rosters[randomRosterIndex] = roster;
   }
 }
 

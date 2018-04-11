@@ -3,7 +3,7 @@
 using namespace std;
 
 
-void HBAC::InitRosters()
+void HBAC::InitFood()
 {
   for (int i = 0; i < this->SN; ++i)
   {
@@ -25,7 +25,7 @@ void HBAC::InitRosters()
 }
 
 
-void HBAC::ApplyNeighbourhood()
+void HBAC::EmployedBees()
 {
   for (auto& roster: this->rosters)
   {
@@ -75,6 +75,49 @@ Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
       break;
   }
   return newRoster;
+}
+
+
+void HBAC::OnlookerBees()
+{
+  random_device rd;
+  mt19937 eng(rd());
+  std::uniform_real_distribution<> dis(0.0, 1.0);
+  float r = dis(eng);
+  int i = 0;
+  float sumProb = 0;
+  float penaltySum = 0;
+  for (auto& roster: this->rosters)
+  {
+    penaltySum += roster.penalty;
+  }
+  while (i < this->SN)
+  {
+    sumProb += this->rosters[i].penalty / penaltySum;
+    if (sumProb >= r)
+    {
+      break;
+    }
+    else
+    {
+      ++i;
+    }
+  }
+  //cout << "R: " << r << endl;
+  //cout << "Sum prob: " << sumProb << endl;
+  //cout << "Onlooker pick: ";
+  //cout << this->rosters[i].penalty << endl;
+  Roster newRoster;
+  newRoster = this->ApplyRandomNeighbourhood(this->rosters[i]);
+  newRoster.penalty = this->objectiveFunction.Forward(newRoster);
+  if (newRoster.penalty < this->rosters[i].penalty)
+  {
+    this->rosters[i] = newRoster;
+  }
+  else
+  {
+    ++this->rosters[i].trial;
+  }
 }
 
 

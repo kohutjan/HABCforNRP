@@ -21,8 +21,9 @@ class HBAC
       schedulingPeriod = _schedulingPeriod;
       objectiveFunction = ObjectiveFunction(schedulingPeriod);
     }
-    void InitRosters();
-    void ApplyNeighbourhood();
+    void InitFood();
+    void EmployedBees();
+    void OnlookerBees();
     void TestRosters();
     ~HBAC(){}
   private:

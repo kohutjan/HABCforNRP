@@ -26,6 +26,7 @@ class Neighbourhood
     Roster SwapPatternOfShifts(Roster roster);
     Roster TokenRingMove(Roster roster);
     int GetRandomNeighbourhood();
+    int GetRandom(int start, int end);
     void setPrint() { print = true; }
     ~Neighbourhood(){}
   private:
@@ -35,7 +36,6 @@ class Neighbourhood
     std::vector<int> GetAnyShiftIndexes(Col dayShifts);
     std::vector<int> GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char shiftType);
     std::vector<int> GetRandomIndexes(int numberOfIndexes, int numberOfRandom);
-    int GetRandom(int start, int end);
     bool print = false;
 
 };

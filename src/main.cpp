@@ -68,7 +68,8 @@ int main(int argc, char **argv)
   schedulingPeriod.Load(periodFilePath);
   HBAC hbac(SN, MCN, limit);
   hbac.setSchedulingPeriod(schedulingPeriod);
-  hbac.InitRosters();
-  hbac.ApplyNeighbourhood();
+  hbac.InitFood();
+  hbac.EmployedBees();
+  hbac.OnlookerBees();
   return 0;
 }

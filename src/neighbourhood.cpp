@@ -21,11 +21,14 @@ Roster Neighbourhood::MoveNeighbourhoodStructure(Roster roster)
     char firstShift = randomDayShifts[firstIndex];
     randomDayShifts[firstIndex] = randomDayShifts[secondIndex];
     randomDayShifts[secondIndex] = firstShift;
-    cout << endl;
-    cout << "Col index: " << randomColIndex << endl;
-    cout << "First index: " << firstIndex << endl;
-    cout << "Second index: " << secondIndex << endl;
-    cout << endl;
+    if (this->print)
+    {
+      cout << endl;
+      cout << "Col index: " << randomColIndex << endl;
+      cout << "First index: " << firstIndex << endl;
+      cout << "Second index: " << secondIndex << endl;
+      cout << endl;
+    }
     break;
   }
   return roster;
@@ -55,11 +58,14 @@ Roster Neighbourhood::SwapNeighbourhoodStructure(Roster roster)
     int secondIndex = anyShiftIndexesWithoutSpecific[randomAnyShiftIndexWithoutSpecific];
     randomDayShifts[firstIndex] = randomDayShifts[secondIndex];
     randomDayShifts[secondIndex] = firstShift;
-    cout << endl;
-    cout << "Col index: " << randomColIndex << endl;
-    cout << "First index: " << firstIndex << endl;
-    cout << "Second index: " << secondIndex << endl;
-    cout << endl;
+    if (this->print)
+    {
+      cout << endl;
+      cout << "Col index: " << randomColIndex << endl;
+      cout << "First index: " << firstIndex << endl;
+      cout << "Second index: " << secondIndex << endl;
+      cout << endl;
+    }
     break;
   }
   return roster;
@@ -104,14 +110,17 @@ Roster Neighbourhood::SwapPatternOfShifts(Roster roster)
     }
     if (patternFound)
     {
-      cout << endl;
-      cout << "First row index: " << randomRowIndexes[0] << endl;
-      cout << "Second row index: " << randomRowIndexes[1] << endl;
-      cout << "Size of pattern: " << randomSizeOfPattern << endl;
-      cout << "Col index: " << colIndex << endl;
-      cout << "Direction: " << direction << endl;
-      cout << "Start index: " << randomStartColIndex << endl;
-      cout << endl;
+      if (this->print)
+      {
+        cout << endl;
+        cout << "First row index: " << randomRowIndexes[0] << endl;
+        cout << "Second row index: " << randomRowIndexes[1] << endl;
+        cout << "Size of pattern: " << randomSizeOfPattern << endl;
+        cout << "Col index: " << colIndex << endl;
+        cout << "Direction: " << direction << endl;
+        cout << "Start index: " << randomStartColIndex << endl;
+        cout << endl;
+      }
       break;
     }
   }
@@ -180,10 +189,14 @@ Roster Neighbourhood::TokenRingMove(Roster roster)
     int randomSundayNoneIndex = sundayNone[this->GetRandom(0, sundayNone.size() - 1)];
     saturday[randomSaturdayNoneIndex] = saturday[randomSundayNoneIndex];
     saturday[randomSundayNoneIndex] = NONE;
-    cout << endl;
-    cout << "Weekend index: " << randomWeekendIndex << endl;
-    cout << "Saturday none index: " << randomSaturdayNoneIndex << endl;
-    cout << "Sunday none index: " << randomSundayNoneIndex << endl;
+
+    if (this->print)
+    {
+      cout << endl;
+      cout << "Weekend index: " << randomWeekendIndex << endl;
+      cout << "Saturday none index: " << randomSaturdayNoneIndex << endl;
+      cout << "Sunday none index: " << randomSundayNoneIndex << endl;
+    }
 
     vector<int> saturdaySunday;
     for (int j = 0; j < saturday.size(); ++j)
@@ -216,8 +229,12 @@ Roster Neighbourhood::TokenRingMove(Roster roster)
           }
         }
       }
-      cout << "First weekend index: " << firstWeekend << endl;
-      cout << "Second weekend index: " << secondWeekend << endl;
+      if (this->print)
+      {
+        cout << "First weekend index: " << firstWeekend << endl;
+        cout << "Second weekend index: " << secondWeekend << endl;
+        cout << endl;
+      }
     }
     break;
   }

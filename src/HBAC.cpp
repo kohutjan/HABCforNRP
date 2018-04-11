@@ -24,14 +24,17 @@ void HBAC::TestRosters()
   {
     int penalty = objectiveFunction.CountPenalty(roster);
     Roster newRoster = neighbourhood.TokenRingMove(roster);
+    newRoster = neighbourhood.MoveNeighbourhoodStructure(roster);
+    newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
+    newRoster = neighbourhood.SwapPatternOfShifts(roster);
     int newPenalty = objectiveFunction.CountPenalty(newRoster);
-    roster.Print();
+    //roster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for roster " << index << ": " << penalty;
     cout << endl;
     cout << endl;
-    newRoster.Print();
+    //newRoster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for new roster " << index << ": " << newPenalty;

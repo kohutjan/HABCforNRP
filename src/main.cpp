@@ -10,11 +10,16 @@ using namespace std;
 int main(int argc, char **argv)
 {
   static struct option long_options[] = {
-  {"run", required_argument, 0, 'r'},
-  {"filters", required_argument, 0, 'f'},
+  {"period", required_argument, 0, 'p'},
+  {"solution-number", required_argument, 0, 'n'},
+  {"max-iterations", required_argument, 0, 'm'},
+  {"limit", required_argument, 0, 'l'},
   {0, 0, 0, 0}};
 
   string periodFilePath;
+  int SN;
+  int MCN;
+  int limit;
 
   cout << endl;
   cout << "Params" << endl;
@@ -28,6 +33,21 @@ int main(int argc, char **argv)
       case 'p':
         periodFilePath = optarg;
         cout << "Period file path: " << optarg << endl;
+        break;
+
+      case 'n':
+        SN = stoi(optarg);
+        cout << "Number of solutions: " << optarg << endl;
+        break;
+
+      case 'm':
+        MCN = stoi(optarg);
+        cout << "Maximum cycle number: " << optarg << endl;
+        break;
+
+      case 'l':
+        limit = stoi(optarg);
+        cout << "Limit: " << optarg << endl;
         break;
 
       default:
@@ -46,7 +66,7 @@ int main(int argc, char **argv)
 
   SchedulingPeriod schedulingPeriod;
   schedulingPeriod.Load(periodFilePath);
-  HBAC hbac;
+  HBAC hbac(SN, MCN, limit);
   hbac.setSchedulingPeriod(schedulingPeriod);
   hbac.InitRosters(1);
   hbac.TestRosters();

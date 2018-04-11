@@ -20,6 +20,7 @@ class Neighbourhood
     Roster SwapNeighbourhoodStructure(Roster roster);
     Roster SwapPatternOfShifts(Roster roster);
     Roster TokenRingMove(Roster roster);
+    void setPrint() { print = true; }
     ~Neighbourhood(){}
   private:
     bool CheckAndSwapPattern(int colIndex, int sizeOfPattern, Row firstEmployeesShifts,
@@ -29,6 +30,7 @@ class Neighbourhood
     std::vector<int> GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char shiftType);
     std::vector<int> GetRandomIndexes(int numberOfIndexes, int numberOfRandom);
     int GetRandom(int start, int end);
+    bool print = false;
 
 };
 

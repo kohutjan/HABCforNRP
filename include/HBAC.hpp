@@ -15,6 +15,7 @@ class HBAC
 {
   public:
     HBAC(){}
+    HBAC(int _SN, int _MCN, int _limit) : SN(_SN), MCN(_MCN), limit(_limit){}
     void setSchedulingPeriod(SchedulingPeriod _schedulingPeriod)
     {
       schedulingPeriod = _schedulingPeriod;
@@ -24,6 +25,9 @@ class HBAC
     ~HBAC(){}
   private:
     SchedulingPeriod schedulingPeriod;
+    int SN;
+    int MCN;
+    int limit;
     std::vector<Roster> rosters;
 };
 

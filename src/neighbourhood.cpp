@@ -312,3 +312,8 @@ int Neighbourhood::GetRandom(int start, int end)
   uniform_int_distribution<> distr(start, end);
   return distr(eng);
 }
+
+int Neighbourhood::GetRandomNeighbourhood()
+{
+  return this->GetRandom(MNS, TRM);
+}

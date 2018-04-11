@@ -1,6 +1,11 @@
 #ifndef NEIGHBOURHOOD_HPP
 #define NEIGHBOURHOOD_HPP
 
+#define MNS 0
+#define SNS 1
+#define SPS 2
+#define TRM 3
+
 #include <string>
 #include <vector>
 #include <map>
@@ -20,6 +25,7 @@ class Neighbourhood
     Roster SwapNeighbourhoodStructure(Roster roster);
     Roster SwapPatternOfShifts(Roster roster);
     Roster TokenRingMove(Roster roster);
+    int GetRandomNeighbourhood();
     void setPrint() { print = true; }
     ~Neighbourhood(){}
   private:

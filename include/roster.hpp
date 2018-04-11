@@ -28,6 +28,7 @@ class Roster
     std::vector<int> SSWeekendIndexes;
     std::vector<int> FSSWeekendIndexes;
     Eigen::Matrix<char, Eigen::Dynamic, Eigen::Dynamic> table;
+    int trial = 0;
     void Print();
     ~Roster(){}
   private:

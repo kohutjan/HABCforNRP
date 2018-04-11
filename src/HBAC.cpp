@@ -19,6 +19,51 @@ void HBAC::InitRosters()
   });
 }
 
+void HBAC::ApplyNeighbourhood()
+{
+  for (int i = 0; i < this->SN; ++i)
+  {
+    int neighbourhoodIndex = this->neighbourhood.GetRandomNeighbourhood();
+    Roster newRoster;
+    switch (neighbourhoodIndex)
+    {
+      case MNS:
+        newRoster = this->neighbourhood.MoveNeighbourhoodStructure(this->rosters[i]);
+        break;
+
+      case SNS:
+        newRoster = this->neighbourhood.SwapNeighbourhoodStructure(this->rosters[i]);
+        break;
+
+      case SPS:
+        newRoster = this->neighbourhood.SwapPatternOfShifts(this->rosters[i]);
+        break;
+
+      case TRM:
+        newRoster = this->neighbourhood.TokenRingMove(this->rosters[i]);
+        break;
+
+      default:
+        break;
+    }
+    if (this->CompareRosters(newRoster, this->rosters[i]))
+    {
+      this->rosters[i] = newRoster;
+    }
+    else
+    {
+      ++this->rosters[i].trial;
+    }
+  }
+}
+
+
+bool HBAC::CompareRosters(Roster& roster1, Roster& roster2)
+{
+  return (this->objectiveFunction.Forward(roster1) < this->objectiveFunction.Forward(roster2));
+}
+
+
 void HBAC::TestRosters()
 {
   int index = 0;

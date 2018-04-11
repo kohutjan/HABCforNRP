@@ -26,7 +26,7 @@ int main(int argc, char **argv)
   cout << "#############################################################" << endl;
   int option_index = 0;
   int opt = 0;
-  while ((opt = getopt_long(argc, argv, "p:", long_options, &option_index)) != -1)
+  while ((opt = getopt_long(argc, argv, "p:n:m:l:", long_options, &option_index)) != -1)
   {
     switch (opt)
     {
@@ -69,6 +69,6 @@ int main(int argc, char **argv)
   HBAC hbac(SN, MCN, limit);
   hbac.setSchedulingPeriod(schedulingPeriod);
   hbac.InitRosters();
-  hbac.TestRosters();
+  hbac.ApplyNeighbourhood();
   return 0;
 }

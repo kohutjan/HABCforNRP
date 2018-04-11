@@ -22,15 +22,18 @@ class HBAC
       objectiveFunction = ObjectiveFunction(schedulingPeriod);
     }
     void InitRosters();
+    void ApplyNeighbourhood();
     void TestRosters();
     ~HBAC(){}
   private:
     SchedulingPeriod schedulingPeriod;
     ObjectiveFunction objectiveFunction;
+    Neighbourhood neighbourhood;
     int SN;
     int MCN;
     int limit;
     std::vector<Roster> rosters;
+    bool CompareRosters(Roster& roster1, Roster& roster2);
 };
 
 #endif

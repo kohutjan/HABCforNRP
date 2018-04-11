@@ -18,6 +18,10 @@ void HBAC::InitRosters()
   {
     return this->objectiveFunction.Forward(roster1) < this->objectiveFunction.Forward(roster2);
   });
+  for (auto& roster: this->rosters)
+  {
+    roster.penalty = this->objectiveFunction.Forward(roster);
+  }
 }
 
 
@@ -27,7 +31,10 @@ void HBAC::ApplyNeighbourhood()
   {
     Roster newRoster;
     newRoster = this->ApplyRandomNeighbourhood(roster);
-    if (this->CompareRosters(newRoster, roster))
+    newRoster.penalty = this->objectiveFunction.Forward(newRoster);
+    //cout << "Old: " << roster.penalty << endl;
+    //cout << "New: " << newRoster.penalty << endl;
+    if (newRoster.penalty < roster.penalty)
     {
       roster = newRoster;
     }
@@ -35,11 +42,14 @@ void HBAC::ApplyNeighbourhood()
     {
       ++roster.trial;
     }
+    //cout << "Picked: " << roster.penalty << endl;
+    //cout << "Trial: " << roster.trial << endl;
+    //cout << endl;
   }
 }
 
 
-Roster HBAC::ApplyRandomNeighbourhood(Roster roster)
+Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
 {
   int neighbourhoodIndex = this->neighbourhood.GetRandomNeighbourhood();
   Roster newRoster;
@@ -65,12 +75,6 @@ Roster HBAC::ApplyRandomNeighbourhood(Roster roster)
       break;
   }
   return newRoster;
-}
-
-
-bool HBAC::CompareRosters(Roster& roster1, Roster& roster2)
-{
-  return (this->objectiveFunction.Forward(roster1) < this->objectiveFunction.Forward(roster2));
 }
 
 

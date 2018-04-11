@@ -23,7 +23,6 @@ class HBAC
     }
     void InitRosters();
     void ApplyNeighbourhood();
-    Roster ApplyRandomNeighbourhood(Roster roster);
     void TestRosters();
     ~HBAC(){}
   private:
@@ -34,7 +33,7 @@ class HBAC
     int MCN;
     int limit;
     std::vector<Roster> rosters;
-    bool CompareRosters(Roster& roster1, Roster& roster2);
+    Roster ApplyRandomNeighbourhood(Roster& roster);
 };
 
 #endif

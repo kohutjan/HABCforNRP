@@ -29,6 +29,7 @@ class Roster
     std::vector<int> FSSWeekendIndexes;
     Eigen::Matrix<char, Eigen::Dynamic, Eigen::Dynamic> table;
     int trial = 0;
+    int penalty = 0;
     void Print();
     ~Roster(){}
   private:

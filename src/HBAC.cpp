@@ -19,23 +19,22 @@ void HBAC::TestRosters()
 {
   int index = 0;
   ObjectiveFunction objectiveFunction(this->schedulingPeriod);
-  objectiveFunction.setPrint();
   Neighbourhood neighbourhood;
   for (auto& roster: this->rosters)
   {
     int penalty = objectiveFunction.CountPenalty(roster);
-    //Roster newRoster = neighbourhood.SwapPatternOfShifts(roster);
-    //int newPenalty = objectiveFunction.CountPenalty(newRoster);
+    Roster newRoster = neighbourhood.TokenRingMove(roster);
+    int newPenalty = objectiveFunction.CountPenalty(newRoster);
     roster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for roster " << index << ": " << penalty;
     cout << endl;
     cout << endl;
-    //newRoster.Print();
+    newRoster.Print();
     cout << endl;
     cout << endl;
-    //cout << "Objective function output for new roster " << index << ": " << newPenalty;
+    cout << "Objective function output for new roster " << index << ": " << newPenalty;
     cout << endl;
     cout << endl;
     ++index;

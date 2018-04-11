@@ -154,6 +154,73 @@ bool Neighbourhood::CheckAndSwapPattern(int colIndex, int sizeOfPattern,
 
 Roster Neighbourhood::TokenRingMove(Roster roster)
 {
+  for (int i = 0; i < 20; ++i)
+  {
+    int randomWeekendIndex = roster.SSWeekendIndexes[this->GetRandom(0, roster.SSWeekendIndexes.size() - 1)];
+    Col saturday = roster.table.col(randomWeekendIndex);
+    Col sunday = roster.table.col(randomWeekendIndex + 1);
+    vector<int> saturdayNone;
+    vector<int> sundayNone;
+    for (int j = 0; j < saturday.size(); ++j)
+    {
+      if (saturday[j] == NONE && sunday[j] != NONE)
+      {
+        saturdayNone.push_back(j);
+      }
+      if (saturday[j] != NONE && sunday[j] == NONE)
+      {
+        sundayNone.push_back(j);
+      }
+    }
+    if (saturdayNone.empty() || sundayNone.empty())
+    {
+      continue;
+    }
+    int randomSaturdayNoneIndex = saturdayNone[this->GetRandom(0, saturdayNone.size() - 1)];
+    int randomSundayNoneIndex = sundayNone[this->GetRandom(0, sundayNone.size() - 1)];
+    saturday[randomSaturdayNoneIndex] = saturday[randomSundayNoneIndex];
+    saturday[randomSundayNoneIndex] = NONE;
+    cout << endl;
+    cout << "Weekend index: " << randomWeekendIndex << endl;
+    cout << "Saturday none index: " << randomSaturdayNoneIndex << endl;
+    cout << "Sunday none index: " << randomSundayNoneIndex << endl;
+
+    vector<int> saturdaySunday;
+    for (int j = 0; j < saturday.size(); ++j)
+    {
+      if (saturday[j] != NONE && sunday[j] != NONE)
+      {
+        saturdaySunday.push_back(j);
+      }
+    }
+    int firstWeekend;
+    int secondWeekend;
+    if (saturdaySunday.size() > 1)
+    {
+      for (size_t j = 0; j < saturdaySunday.size(); ++j)
+      {
+        int firstWeekendIndex = saturdaySunday[j];
+        for (size_t k = j + 1; k < saturdaySunday.size(); ++k)
+        {
+          int secondWeekendIndex = saturdaySunday[k];
+          if (saturday[firstWeekendIndex] == sunday[secondWeekendIndex] &&
+              saturday[secondWeekendIndex] == sunday[firstWeekendIndex] &&
+              saturday[firstWeekendIndex] != sunday[firstWeekendIndex])
+          {
+            char sundayFirstShift = sunday[firstWeekendIndex];
+            sunday[firstWeekendIndex] = sunday[secondWeekendIndex];
+            sunday[secondWeekendIndex] = sundayFirstShift;
+            firstWeekend = firstWeekendIndex;
+            secondWeekend = secondWeekendIndex;
+            break;
+          }
+        }
+      }
+      cout << "First weekend index: " << firstWeekend << endl;
+      cout << "Second weekend index: " << secondWeekend << endl;
+    }
+    break;
+  }
   return roster;
 }
 

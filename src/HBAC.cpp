@@ -2,6 +2,7 @@
 
 using namespace std;
 
+
 void HBAC::InitRosters()
 {
   for (int i = 0; i < this->SN; ++i)
@@ -19,42 +20,51 @@ void HBAC::InitRosters()
   });
 }
 
+
 void HBAC::ApplyNeighbourhood()
 {
-  for (int i = 0; i < this->SN; ++i)
+  for (auto& roster: this->rosters)
   {
-    int neighbourhoodIndex = this->neighbourhood.GetRandomNeighbourhood();
     Roster newRoster;
-    switch (neighbourhoodIndex)
+    newRoster = this->ApplyRandomNeighbourhood(roster);
+    if (this->CompareRosters(newRoster, roster))
     {
-      case MNS:
-        newRoster = this->neighbourhood.MoveNeighbourhoodStructure(this->rosters[i]);
-        break;
-
-      case SNS:
-        newRoster = this->neighbourhood.SwapNeighbourhoodStructure(this->rosters[i]);
-        break;
-
-      case SPS:
-        newRoster = this->neighbourhood.SwapPatternOfShifts(this->rosters[i]);
-        break;
-
-      case TRM:
-        newRoster = this->neighbourhood.TokenRingMove(this->rosters[i]);
-        break;
-
-      default:
-        break;
-    }
-    if (this->CompareRosters(newRoster, this->rosters[i]))
-    {
-      this->rosters[i] = newRoster;
+      roster = newRoster;
     }
     else
     {
-      ++this->rosters[i].trial;
+      ++roster.trial;
     }
   }
+}
+
+
+Roster HBAC::ApplyRandomNeighbourhood(Roster roster)
+{
+  int neighbourhoodIndex = this->neighbourhood.GetRandomNeighbourhood();
+  Roster newRoster;
+  switch (neighbourhoodIndex)
+  {
+    case MNS:
+      newRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
+      break;
+
+    case SNS:
+      newRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
+      break;
+
+    case SPS:
+      newRoster = this->neighbourhood.SwapPatternOfShifts(roster);
+      break;
+
+    case TRM:
+      newRoster = this->neighbourhood.TokenRingMove(roster);
+      break;
+
+    default:
+      break;
+  }
+  return newRoster;
 }
 
 

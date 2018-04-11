@@ -23,6 +23,7 @@ class HBAC
     }
     void InitRosters();
     void ApplyNeighbourhood();
+    Roster ApplyRandomNeighbourhood(Roster roster);
     void TestRosters();
     ~HBAC(){}
   private:

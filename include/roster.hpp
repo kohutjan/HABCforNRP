@@ -1,6 +1,8 @@
 #ifndef ROSTER_HPP
 #define ROSTER_HPP
 
+#define NOT_FOUND -1
+
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <map>
@@ -23,6 +25,8 @@ class Roster
     std::vector<int> employeeIds;
     std::vector<char> daysOfWeek;
     std::vector<boost::gregorian::date> dates;
+    std::vector<int> SSWeekendIndexes;
+    std::vector<int> FSSWeekendIndexes;
     Eigen::Matrix<char, Eigen::Dynamic, Eigen::Dynamic> table;
     void Print();
     ~Roster(){}

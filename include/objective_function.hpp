@@ -30,24 +30,29 @@ class ObjectiveFunction
                                  Constrain maxConsecutiveFreeDays,
                                  Constrain minConsecutiveFreeDays);
     int CheckConsecutiveWorkingWeekends(Row employeesShifts,
-                                        std::vector<char> daysOfWeek,
+                                        std::vector<int> SSWeekendIndexes,
+                                        std::vector<int> FSSWeekendIndexes,
                                         int weekendDefinition,
                                         Constrain maxConsecutiveWorkingWeekends,
                                         Constrain minConsecutiveWorkingWeekends);
     int CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
-                                           std::vector<char> daysOfWeek,
+                                           std::vector<int> SSWeekendIndexes,
+                                           std::vector<int> FSSWeekendIndexes,
                                            int weekendDefinition,
                                            Constrain maxWorkingWeekendsInFourWeeks);
     int CheckCompleteWeekends(Row employeesShifts,
-                              std::vector<char> daysOfWeek,
+                              std::vector<int> SSWeekendIndexes,
+                              std::vector<int> FSSWeekendIndexes,
                               int weekendDefinition,
                               Constrain completeWeekends);
     int CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
-                                          std::vector<char> daysOfWeek,
+                                          std::vector<int> SSWeekendIndexes,
+                                          std::vector<int> FSSWeekendIndexes,
                                           int weekendDefinition,
                                           Constrain identShiftTypesDuringWeekend);
     int CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
-                                           std::vector<char> daysOfWeek,
+                                           std::vector<int> SSWeekendIndexes,
+                                           std::vector<int> FSSWeekendIndexes,
                                            int weekendDefinition,
                                            Constrain noNightShiftBeforeFreeWeekend);
     int CheckTwoFreeDaysAfterNightShifts(Row employeesShifts,

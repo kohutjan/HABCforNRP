@@ -1,5 +1,3 @@
-#define NOT_FOUND -1
-
 #include "roster.hpp"
 
 using namespace std;
@@ -15,13 +13,25 @@ void Roster::Init(date startDate, date endDate,
   {
     this->employeeIds.push_back(employee.first);
   }
+  date_duration rosterDuration = endDate - startDate;
   sort(this->employeeIds.begin(), this->employeeIds.end());
+  int dayIndex = 0;
   for(day_iterator iter = startDate; iter != (endDate + days(1)); ++iter)
   {
     this->dates.push_back(*iter);
     this->daysOfWeek.push_back(GregToDay(iter->day_of_week()));
+    if ((iter->day_of_week() == boost::date_time::Saturday) &
+       ((dayIndex + 1) < (rosterDuration.days() + 1)))
+    {
+      this->SSWeekendIndexes.push_back(dayIndex);
+    }
+    if ((iter->day_of_week() == boost::date_time::Friday) &
+       ((dayIndex + 2) < (rosterDuration.days() + 1)))
+    {
+      this->FSSWeekendIndexes.push_back(dayIndex);
+    }
+    ++dayIndex;
   }
-  date_duration rosterDuration = endDate - startDate;
   this->table = Matrix<char, Dynamic, Dynamic>::Constant(employees.size(),
                                                          rosterDuration.days() + 1,
                                                          NONE);
@@ -176,6 +186,21 @@ void Roster::Print()
   cout << endl;
   cout << endl;
   cout << "Matrix dimension: " <<  this->table.rows() << ", " << this->table.cols() << endl;
+  cout << endl;
+  cout << endl;
+  cout << "SaturdaySunday indexes" << endl;
+  for (auto& indexDay: this->SSWeekendIndexes)
+  {
+    cout << indexDay << " ";
+  }
+  cout << endl;
+  cout << endl;
+  cout << "FridaySaturdaySunday indexes" << endl;
+  for (auto& indexDay: this->FSSWeekendIndexes)
+  {
+    cout << indexDay << " ";
+  }
+  cout << endl;
   cout << endl;
   cout << this->table << endl;
   cout << endl;

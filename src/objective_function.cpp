@@ -47,34 +47,37 @@ int ObjectiveFunction::CountPenalty(Roster roster)
     if (print) cout << "CheckConsecutiveFreeDays: " << constrainPenalty << endl;
     penalty += constrainPenalty;
 
-    constrainPenalty = this->CheckConsecutiveWorkingWeekends(roster.table.row(i), roster.daysOfWeek,
+    constrainPenalty = this->CheckConsecutiveWorkingWeekends(roster.table.row(i),
+                                                             roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                              employeeContract.weekendDefinition,
                                                              employeeContract.maxConsecutiveWorkingWeekends,
                                                              employeeContract.minConsecutiveWorkingWeekends);
     if (print) cout << "CheckConsecutiveWorkingWeekends: " << constrainPenalty << endl;
     penalty += constrainPenalty;
 
-    constrainPenalty = this->CheckMaxWorkingWeekendsInFourWeeks(roster.table.row(i), roster.daysOfWeek,
+    constrainPenalty = this->CheckMaxWorkingWeekendsInFourWeeks(roster.table.row(i),
+                                                                roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                 employeeContract.weekendDefinition,
                                                                 employeeContract.maxWorkingWeekendsInFourWeeks);
     if (print) cout << "CheckMaxWorkingWeekendsInFourWeeks: " << constrainPenalty << endl;
     penalty += constrainPenalty;
 
-    constrainPenalty = this->CheckCompleteWeekends(roster.table.row(i), roster.daysOfWeek,
+    constrainPenalty = this->CheckCompleteWeekends(roster.table.row(i),
+                                                   roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                    employeeContract.weekendDefinition,
                                                    employeeContract.completeWeekends);
     if (print) cout << "CheckCompleteWeekends: " << constrainPenalty << endl;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckIdentShiftTypesDuringWeekend(roster.table.row(i),
-                                                               roster.daysOfWeek,
+                                                               roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                employeeContract.weekendDefinition,
                                                                employeeContract.identShiftTypesDuringWeekend);
     if (print) cout << "CheckIdentShiftTypesDuringWeekend: " << constrainPenalty << endl;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckNoNightShiftBeforeFreeWeekend(roster.table.row(i),
-                                                                roster.daysOfWeek,
+                                                                roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                 employeeContract.weekendDefinition,
                                                                 employeeContract.noNightShiftBeforeFreeWeekend);
     if (print) cout << "CheckNoNightShiftBeforeFreeWeekend: " << constrainPenalty << endl;
@@ -164,7 +167,8 @@ int ObjectiveFunction::CheckConsecutiveFreeDays(Row employeesShifts,
 
 
 int ObjectiveFunction::CheckConsecutiveWorkingWeekends(Row employeesShifts,
-                                                       vector<char> daysOfWeek,
+                                                       vector<int> SSWeekendIndexes,
+                                                       vector<int> FSSWeekendIndexes,
                                                        int weekendDefinition,
                                                        Constrain maxConsecutiveWorkingWeekends,
                                                        Constrain minConsecutiveWorkingWeekends)
@@ -177,55 +181,43 @@ int ObjectiveFunction::CheckConsecutiveWorkingWeekends(Row employeesShifts,
   int actualConsecutive = 0;
   if (weekendDefinition == SS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < SSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == SATURDAY)
+      int weekendIndex = SSWeekendIndexes[i];
+      if (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE)
       {
-        if ((i + 1) < employeesShifts.size())
+        ++actualConsecutive;
+      }
+      else
+      {
+        if (actualConsecutive != 0)
         {
-          if (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE)
-          {
-            ++actualConsecutive;
-          }
-          else
-          {
-            if (actualConsecutive != 0)
-            {
-              penalty += this->CheckConsecutive(actualConsecutive,
-                                                        maxConsecutiveWorkingWeekends,
-                                                        minConsecutiveWorkingWeekends);
-              actualConsecutive = 0;
-            }
-          }
-          ++i;
+          penalty += this->CheckConsecutive(actualConsecutive,
+                                            maxConsecutiveWorkingWeekends,
+                                            minConsecutiveWorkingWeekends);
+          actualConsecutive = 0;
         }
       }
     }
   }
   if (weekendDefinition == FSS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == FRIDAY)
+      int weekendIndex = FSSWeekendIndexes[i];
+      if (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE
+          && employeesShifts[weekendIndex + 2] != NONE)
       {
-        if ((i + 2) < employeesShifts.size())
+        ++actualConsecutive;
+      }
+      else
+      {
+        if (actualConsecutive != 0)
         {
-          if (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE
-              && employeesShifts[i + 2] != NONE)
-          {
-            ++actualConsecutive;
-          }
-          else
-          {
-            if (actualConsecutive != 0)
-            {
-              penalty += this->CheckConsecutive(actualConsecutive,
-                                                        maxConsecutiveWorkingWeekends,
-                                                        minConsecutiveWorkingWeekends);
-              actualConsecutive = 0;
-            }
-          }
-          i += 2;
+          penalty += this->CheckConsecutive(actualConsecutive,
+                                            maxConsecutiveWorkingWeekends,
+                                            minConsecutiveWorkingWeekends);
+          actualConsecutive = 0;
         }
       }
     }
@@ -233,15 +225,16 @@ int ObjectiveFunction::CheckConsecutiveWorkingWeekends(Row employeesShifts,
   if (actualConsecutive > 0)
   {
     penalty += this->CheckConsecutive(actualConsecutive,
-                                              maxConsecutiveWorkingWeekends,
-                                              minConsecutiveWorkingWeekends);
+                                      maxConsecutiveWorkingWeekends,
+                                      minConsecutiveWorkingWeekends);
   }
   return penalty;
 }
 
 
 int ObjectiveFunction::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
-                                                          vector<char> daysOfWeek,
+                                                          vector<int> SSWeekendIndexes,
+                                                          vector<int> FSSWeekendIndexes,
                                                           int weekendDefinition,
                                                           Constrain maxWorkingWeekendsInFourWeeks)
 {
@@ -253,36 +246,24 @@ int ObjectiveFunction::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
   int numberOfWorkingWeeks = 0;
   if (weekendDefinition == SS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < SSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == SATURDAY)
+      int weekendIndex = SSWeekendIndexes[i];
+      if (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE)
       {
-        if ((i + 1) < employeesShifts.size())
-        {
-          if (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE)
-          {
-            ++numberOfWorkingWeeks;
-          }
-          ++i;
-        }
+        ++numberOfWorkingWeeks;
       }
     }
   }
   if (weekendDefinition == FSS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == FRIDAY)
+      int weekendIndex = FSSWeekendIndexes[i];
+      if (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE
+          && employeesShifts[weekendIndex + 2] != NONE)
       {
-        if ((i + 2) < employeesShifts.size())
-        {
-          if (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE
-              && employeesShifts[i + 2] != NONE)
-          {
-            ++numberOfWorkingWeeks;
-          }
-          i += 2;
-        }
+        ++numberOfWorkingWeeks;
       }
     }
   }
@@ -295,7 +276,9 @@ int ObjectiveFunction::CheckMaxWorkingWeekendsInFourWeeks(Row employeesShifts,
 }
 
 
-int ObjectiveFunction::CheckCompleteWeekends(Row employeesShifts, vector<char> daysOfWeek,
+int ObjectiveFunction::CheckCompleteWeekends(Row employeesShifts,
+                                             vector<int> SSWeekendIndexes,
+                                             vector<int> FSSWeekendIndexes,
                                              int weekendDefinition, Constrain completeWeekends)
 {
   int penalty = 0;
@@ -305,45 +288,33 @@ int ObjectiveFunction::CheckCompleteWeekends(Row employeesShifts, vector<char> d
   }
   if (weekendDefinition == SS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < SSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == SATURDAY)
+      int weekendIndex = SSWeekendIndexes[i];
+      bool uncompleteWeekend = ((employeesShifts[weekendIndex] == NONE &&
+                                 employeesShifts[weekendIndex + 1] != NONE) ||
+                                (employeesShifts[weekendIndex] != NONE &&
+                                 employeesShifts[weekendIndex + 1] == NONE));
+      if (uncompleteWeekend)
       {
-        if ((i + 1) < employeesShifts.size())
-        {
-          bool uncompleteWeekend = ((employeesShifts[i] == NONE &&
-                                     employeesShifts[i + 1] != NONE) ||
-                                    (employeesShifts[i] != NONE &&
-                                     employeesShifts[i + 1] == NONE));
-          if (uncompleteWeekend)
-          {
-            ++penalty;
-          }
-          ++i;
-        }
+        ++penalty;
       }
     }
   }
   if (weekendDefinition == FSS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == FRIDAY)
+      int weekendIndex = FSSWeekendIndexes[i];
+      int freeDays = 0;
+      for (int j = 0; j < 3; ++j)
       {
-        if ((i + 2) < employeesShifts.size())
+        if (employeesShifts[weekendIndex + j] == NONE)
         {
-          int freeDays = 0;
-          for (int j = 0; j < 3; ++j)
-          {
-            if (employeesShifts[i + j] == NONE)
-            {
-              ++freeDays;
-            }
-          }
-          penalty += freeDays % 3;
-          i += 2;
+          ++freeDays;
         }
       }
+      penalty += freeDays % 3;
     }
   }
   penalty *= completeWeekends.weight;
@@ -352,7 +323,8 @@ int ObjectiveFunction::CheckCompleteWeekends(Row employeesShifts, vector<char> d
 
 
 int ObjectiveFunction::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
-                                                         vector<char> daysOfWeek,
+                                                         vector<int> SSWeekendIndexes,
+                                                         vector<int> FSSWeekendIndexes,
                                                          int weekendDefinition,
                                                          Constrain identShiftTypesDuringWeekend)
 {
@@ -363,51 +335,41 @@ int ObjectiveFunction::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
   }
   if (weekendDefinition == SS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < SSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == SATURDAY)
+      int weekendIndex = SSWeekendIndexes[i];
+      bool nonidentWeekend = ((employeesShifts[weekendIndex] != employeesShifts[weekendIndex + 1]) &&
+                              (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE));
+      if (nonidentWeekend)
       {
-        if ((i + 1) < employeesShifts.size())
-        {
-          bool nonidentWeekend = ((employeesShifts[i] != employeesShifts[i + 1]) &&
-                                  (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE));
-          if (nonidentWeekend)
-          {
-            penalty += 2;
-          }
-          ++i;
-        }
+        penalty += 2;
       }
     }
   }
   if (weekendDefinition == FSS)
   {
-    for (int i = 0; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == FRIDAY)
+      int weekendIndex = FSSWeekendIndexes[i];
+      if (employeesShifts[weekendIndex] != NONE &&
+          employeesShifts[weekendIndex + 1] != NONE &&
+          employeesShifts[weekendIndex + 2] != NONE)
       {
-        if ((i + 2) < employeesShifts.size())
+        char fridayShiftType = employeesShifts[weekendIndex];
+        char saturdayShiftType = employeesShifts[weekendIndex + 1];
+        char sundayShiftType = employeesShifts[weekendIndex + 2];
+        if ((fridayShiftType != saturdayShiftType && fridayShiftType != sundayShiftType && saturdayShiftType != sundayShiftType) ||
+            (fridayShiftType != saturdayShiftType && fridayShiftType == sundayShiftType))
         {
-          if (employeesShifts[i] != NONE && employeesShifts[i + 1] != NONE && employeesShifts[i + 2] != NONE)
+          penalty += 2;
+        }
+        else
+        {
+          if ((fridayShiftType == saturdayShiftType && saturdayShiftType != sundayShiftType) ||
+              (fridayShiftType != saturdayShiftType && saturdayShiftType == sundayShiftType))
           {
-            char fridayShiftType = employeesShifts[i];
-            char saturdayShiftType = employeesShifts[i + 1];
-            char sundayShiftType = employeesShifts[i + 2];
-            if ((fridayShiftType != saturdayShiftType && fridayShiftType != sundayShiftType && saturdayShiftType != sundayShiftType) ||
-                (fridayShiftType != saturdayShiftType && fridayShiftType == sundayShiftType))
-            {
-              penalty += 2;
-            }
-            else
-            {
-              if ((fridayShiftType == saturdayShiftType && saturdayShiftType != sundayShiftType) ||
-                  (fridayShiftType != saturdayShiftType && saturdayShiftType == sundayShiftType))
-              {
-                ++penalty;
-              }
-            }
+            ++penalty;
           }
-          i += 2;
         }
       }
     }
@@ -418,7 +380,8 @@ int ObjectiveFunction::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
 
 
 int ObjectiveFunction::CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
-                                                          vector<char> daysOfWeek,
+                                                          vector<int> SSWeekendIndexes,
+                                                          vector<int> FSSWeekendIndexes,
                                                           int weekendDefinition,
                                                           Constrain noNightShiftBeforeFreeWeekend)
 {
@@ -429,44 +392,40 @@ int ObjectiveFunction::CheckNoNightShiftBeforeFreeWeekend(Row employeesShifts,
   }
   if (weekendDefinition == SS)
   {
-    for (int i = 1; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < SSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == SATURDAY)
+      int weekendIndex = SSWeekendIndexes[i];
+      if ((weekendIndex - 1) >= 0)
       {
-        if ((i + 1) < employeesShifts.size())
+        if (employeesShifts[weekendIndex - 1] == NIGHT)
         {
-          if (employeesShifts[i - 1] == NIGHT)
+          bool freeWeekend = (employeesShifts[weekendIndex] == NONE &&
+                              employeesShifts[weekendIndex + 1] == NONE);
+          if (freeWeekend)
           {
-            bool freeWeekend = (employeesShifts[i] == NONE && employeesShifts[i + 1] == NONE);
-            if (freeWeekend)
-            {
-              ++penalty;
-            }
+            ++penalty;
           }
-          ++i;
         }
       }
     }
   }
   if (weekendDefinition == FSS)
   {
-    for (int i = 1; i < employeesShifts.size(); ++i)
+    for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
-      if (daysOfWeek[i] == FRIDAY)
+      int weekendIndex = FSSWeekendIndexes[i];
+
+      if ((weekendIndex - 1) >= 0)
       {
-        if ((i + 2) < employeesShifts.size())
+        if (employeesShifts[weekendIndex - 1] == NIGHT)
         {
-          if (employeesShifts[i - 1] == NIGHT)
+          bool freeWeekend = (employeesShifts[weekendIndex] == NONE &&
+                              employeesShifts[weekendIndex + 1] == NONE &&
+                              employeesShifts[weekendIndex + 2] == NONE);
+          if (freeWeekend)
           {
-            bool freeWeekend = (employeesShifts[i] == NONE &&
-                                employeesShifts[i + 1] == NONE &&
-                                employeesShifts[i + 2] == NONE);
-            if (freeWeekend)
-            {
-              ++penalty;
-            }
+            ++penalty;
           }
-          i += 2;
         }
       }
     }

@@ -73,53 +73,82 @@ Roster Neighbourhood::SwapPatternOfShifts(Roster roster)
     vector<int> randomRowIndexes = this->GetRandomIndexes(roster.table.rows(), 2);
     Row firstEmployeesShifts = roster.table.row(randomRowIndexes[0]);
     Row secondEmployeesShifts = roster.table.row(randomRowIndexes[1]);
-    int randomSizeOfPattern = this->GetRandom(2, 8);
+    int randomSizeOfPattern = this->GetRandom(2, 6);
     int randomStartColIndex = this->GetRandom(0, roster.table.cols() - randomSizeOfPattern);
     int colIndex;
-    bool patternFound;
-    bool identicalPattern;
-    for (int j = randomStartColIndex; j <= roster.table.cols() - randomSizeOfPattern; ++j)
+    bool patternFound = false;
+    int direction = this->GetRandom(0, 1);
+    if (direction)
     {
-      patternFound = true;
-      identicalPattern = true;
-      for (int k = 0; k < randomSizeOfPattern; ++k)
+      for (int j = randomStartColIndex; j <= roster.table.cols() - randomSizeOfPattern; ++j)
       {
-        bool brokenPattern = ((firstEmployeesShifts[j + k] != NONE && secondEmployeesShifts[j + k] == NONE) ||
-                              (firstEmployeesShifts[j + k] == NONE && secondEmployeesShifts[j + k] != NONE));
-        if (brokenPattern)
+        patternFound = this->CheckAndSwapPattern(j, randomSizeOfPattern, firstEmployeesShifts, secondEmployeesShifts);
+        if (patternFound)
         {
-          patternFound = false;
+          colIndex = j;
           break;
         }
-        if (firstEmployeesShifts[j + k] != secondEmployeesShifts[j + k])
-        {
-          identicalPattern = false;
-        }
-      }
-      if (patternFound && !identicalPattern)
-      {
-        colIndex = j;
-        for (int s = colIndex; s < colIndex + randomSizeOfPattern; ++s)
-        {
-          char firstShift = firstEmployeesShifts[s];
-          firstEmployeesShifts[s] = secondEmployeesShifts[s];
-          secondEmployeesShifts[s] = firstShift;
-        }
-        break;
       }
     }
-    if (patternFound && !identicalPattern)
+    else
+    {
+      for (int j = randomStartColIndex; j >= 0; --j)
+      {
+        patternFound = this->CheckAndSwapPattern(j, randomSizeOfPattern, firstEmployeesShifts, secondEmployeesShifts);
+        if (patternFound)
+        {
+          colIndex = j;
+          break;
+        }
+      }
+    }
+    if (patternFound)
     {
       cout << endl;
       cout << "First row index: " << randomRowIndexes[0] << endl;
       cout << "Second row index: " << randomRowIndexes[1] << endl;
       cout << "Size of pattern: " << randomSizeOfPattern << endl;
       cout << "Col index: " << colIndex << endl;
+      cout << "Direction: " << direction << endl;
+      cout << "Start index: " << randomStartColIndex << endl;
       cout << endl;
       break;
     }
   }
   return roster;
+}
+
+
+bool Neighbourhood::CheckAndSwapPattern(int colIndex, int sizeOfPattern,
+                                        Row firstEmployeesShifts,
+                                        Row secondEmployeesShifts)
+{
+  bool patternFound = true;
+  bool identicalPattern = true;
+  for (int k = 0; k < sizeOfPattern; ++k)
+  {
+    bool brokenPattern = ((firstEmployeesShifts[colIndex + k] != NONE && secondEmployeesShifts[colIndex + k] == NONE) ||
+                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE));
+    if (brokenPattern)
+    {
+      patternFound = false;
+      break;
+    }
+    if (firstEmployeesShifts[colIndex + k] != secondEmployeesShifts[colIndex + k])
+    {
+      identicalPattern = false;
+    }
+  }
+  if (patternFound && !identicalPattern)
+  {
+    for (int s = colIndex; s < colIndex + sizeOfPattern; ++s)
+    {
+      char firstShift = firstEmployeesShifts[s];
+      firstEmployeesShifts[s] = secondEmployeesShifts[s];
+      secondEmployeesShifts[s] = firstShift;
+    }
+  }
+  return (patternFound && !identicalPattern);
 }
 
 

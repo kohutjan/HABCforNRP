@@ -22,6 +22,8 @@ class Neighbourhood
     Roster TokenRingMove(Roster roster);
     ~Neighbourhood(){}
   private:
+    bool CheckAndSwapPattern(int colIndex, int sizeOfPattern, Row firstEmployeesShifts,
+                             Row secondEmployeesShifts);
     std::vector<int> GetNoneShiftIndexes(Col dayShifts);
     std::vector<int> GetAnyShiftIndexes(Col dayShifts);
     std::vector<int> GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char shiftType);

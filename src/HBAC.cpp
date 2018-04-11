@@ -2,9 +2,9 @@
 
 using namespace std;
 
-void HBAC::InitRosters(int numberOfRosters)
+void HBAC::InitRosters()
 {
-  for (int i = 0; i < numberOfRosters; ++i)
+  for (int i = 0; i < this->SN; ++i)
   {
     Roster roster;
     roster.Init(this->schedulingPeriod.startDate, this->schedulingPeriod.endDate,
@@ -13,6 +13,10 @@ void HBAC::InitRosters(int numberOfRosters)
                 this->schedulingPeriod.dateSpecificCover);
     this->rosters.push_back(roster);
   }
+  sort( this->rosters.begin( ), this->rosters.end( ), [&]( const Roster& roster1, const Roster& roster2 )
+  {
+    return this->objectiveFunction.Forward(roster1) < this->objectiveFunction.Forward(roster2);
+  });
 }
 
 void HBAC::TestRosters()
@@ -22,12 +26,12 @@ void HBAC::TestRosters()
   Neighbourhood neighbourhood;
   for (auto& roster: this->rosters)
   {
-    int penalty = objectiveFunction.CountPenalty(roster);
+    int penalty = objectiveFunction.Forward(roster);
     Roster newRoster = neighbourhood.TokenRingMove(roster);
     newRoster = neighbourhood.MoveNeighbourhoodStructure(roster);
     newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
     newRoster = neighbourhood.SwapPatternOfShifts(roster);
-    int newPenalty = objectiveFunction.CountPenalty(newRoster);
+    int newPenalty = objectiveFunction.Forward(newRoster);
     //roster.Print();
     cout << endl;
     cout << endl;

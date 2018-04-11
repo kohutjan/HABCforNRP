@@ -15,9 +15,10 @@ typedef Eigen::DenseBase<Eigen::Matrix<char, -1, -1>>::RowXpr Row;
 class ObjectiveFunction
 {
   public:
+    ObjectiveFunction(){}
     ObjectiveFunction(SchedulingPeriod _schedulingPeriod) :
                       schedulingPeriod(_schedulingPeriod){};
-    int CountPenalty(Roster roster);
+    int Forward(Roster roster);
     void setPrint() { print = true; }
     ~ObjectiveFunction(){}
   private:

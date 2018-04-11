@@ -19,12 +19,14 @@ class HBAC
     void setSchedulingPeriod(SchedulingPeriod _schedulingPeriod)
     {
       schedulingPeriod = _schedulingPeriod;
+      objectiveFunction = ObjectiveFunction(schedulingPeriod);
     }
-    void InitRosters(int numberOfRosters);
+    void InitRosters();
     void TestRosters();
     ~HBAC(){}
   private:
     SchedulingPeriod schedulingPeriod;
+    ObjectiveFunction objectiveFunction;
     int SN;
     int MCN;
     int limit;

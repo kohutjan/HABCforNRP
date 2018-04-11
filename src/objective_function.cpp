@@ -3,7 +3,7 @@
 using namespace std;
 using namespace boost::gregorian;
 
-int ObjectiveFunction::CountPenalty(Roster roster)
+int ObjectiveFunction::Forward(Roster roster)
 {
   int penalty = 0;
   int constrainPenalty;

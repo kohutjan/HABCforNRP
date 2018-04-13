@@ -92,9 +92,9 @@ void SchedulingPeriod::LoadPeriod(ifstream &periodStream)
   string ignore;
   string tmpDate;
   periodStream >> ignore;
-  periodStream >> this->name;
-  this->name.pop_back();
-  cout << this->name << ", ";
+  periodStream >> this->id;
+  this->id.pop_back();
+  cout << this->id << ", ";
   periodStream >> tmpDate;
   tmpDate.pop_back();
   this->startDate = from_simple_string(tmpDate);

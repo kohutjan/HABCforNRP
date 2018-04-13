@@ -1,17 +1,41 @@
 #include "HBAC.hpp"
 
 using namespace std;
-
+using namespace boost::gregorian;
 
 void HBAC::Run()
 {
+  auto startTime = chrono::high_resolution_clock::now();
+  auto lastOutput = chrono::high_resolution_clock::now();
   this->InitFood();
-  for (int i = 0; i < this->MCN; ++i)
+  while(1)
   {
-    this->SendEmployedBees();
+    auto actualTime = chrono::high_resolution_clock::now();
+    auto actualDuration = actualTime - startTime;
+    auto outputDuration = actualTime - lastOutput;
+    if (actualDuration > this->timeToSolve)
+    {
+      break;
+    }
+    if (outputDuration > this->outputFrequency)
+    {
+      lastOutput = chrono::high_resolution_clock::now();
+      cout << this->bestRoster.penalty << endl;
+    }
+    if (this->hillClimbing)
+    {
+      this->SendEmployedBeesWithHillClimbing();
+    }
+    else
+    {
+      this->SendEmployedBees();
+    }
     this->SendOnlookerBees();
     this->SendScoutBees();
   }
+  cout << this->bestRoster.penalty << endl;
+  //this->objectiveFunction.setPrint();
+  //this->objectiveFunction.Forward(this->bestRoster);
 }
 
 
@@ -26,14 +50,76 @@ void HBAC::InitFood()
                 this->schedulingPeriod.dateSpecificCover);
     this->rosters.push_back(roster);
   }
-  sort( this->rosters.begin( ), this->rosters.end( ), [&]( const Roster& roster1, const Roster& roster2 )
-  {
-    return this->objectiveFunction.Forward(roster1) < this->objectiveFunction.Forward(roster2);
-  });
   for (auto& roster: this->rosters)
   {
     roster.penalty = this->objectiveFunction.Forward(roster);
   }
+  this->SortRosters();
+  this->bestRoster = this->rosters[0];
+  cout << this->bestRoster.penalty << endl;
+  return;
+}
+
+
+void HBAC::SortRosters()
+{
+  sort( this->rosters.begin( ), this->rosters.end( ), [&]( const Roster& roster1, const Roster& roster2 )
+  {
+    return roster1.penalty < roster2.penalty;
+  });
+  return;
+}
+
+
+void HBAC::SendEmployedBeesWithHillClimbing()
+{
+  random_device rd;
+  mt19937 eng(rd());
+  std::uniform_real_distribution<> dis(0.0, 1.0);
+  for (auto& roster: this->rosters)
+  {
+    if (dis(eng) <= this->HCR)
+    {
+      while(1)
+      {
+        Roster moveRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
+        moveRoster.penalty = this->objectiveFunction.Forward(moveRoster);
+        Roster swapRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
+        swapRoster.penalty = this->objectiveFunction.Forward(swapRoster);
+        Roster patternRoster = this->neighbourhood.SwapPatternOfShifts(roster);
+        patternRoster.penalty = this->objectiveFunction.Forward(patternRoster);
+        Roster tokenRoster = this->neighbourhood.TokenRingMove(roster);
+        tokenRoster.penalty = this->objectiveFunction.Forward(tokenRoster);
+        vector<Roster> betterRosters;
+        if (moveRoster.penalty < roster.penalty)
+        {
+          betterRosters.push_back(moveRoster);
+        }
+        if (swapRoster.penalty < roster.penalty)
+        {
+          betterRosters.push_back(swapRoster);
+        }
+        if (patternRoster.penalty < roster.penalty)
+        {
+          betterRosters.push_back(patternRoster);
+        }
+        if (tokenRoster.penalty < roster.penalty)
+        {
+          betterRosters.push_back(tokenRoster);
+        }
+        if (!betterRosters.empty())
+        {
+          int betterRosterIndex = this->neighbourhood.GetRandom(0, betterRosters.size() - 1);
+          roster = betterRosters[betterRosterIndex];
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+  }
+  return;
 }
 
 
@@ -58,6 +144,7 @@ void HBAC::SendEmployedBees()
     //cout << "Trial: " << roster.trial << endl;
     //cout << endl;
   }
+  return;
 }
 
 
@@ -92,6 +179,7 @@ Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
 
 void HBAC::SendOnlookerBees()
 {
+  this->SortRosters();
   random_device rd;
   mt19937 eng(rd());
   std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -130,11 +218,17 @@ void HBAC::SendOnlookerBees()
   {
     ++this->rosters[i].trial;
   }
+  return;
 }
 
 
 void HBAC::SendScoutBees()
 {
+  this->SortRosters();
+  if (this->rosters[0].penalty < this->bestRoster.penalty)
+  {
+    this->bestRoster = this->rosters[0];
+  }
   int randomRosterIndex = this->neighbourhood.GetRandom(0, this->SN - 1);
   if (this->rosters[randomRosterIndex].trial >= limit)
   {
@@ -146,6 +240,53 @@ void HBAC::SendScoutBees()
     roster.penalty = this->objectiveFunction.Forward(roster);
     this->rosters[randomRosterIndex] = roster;
   }
+  return;
+}
+
+
+void HBAC::SaveSolution(string pathToOuptutFile)
+{
+  ofstream outputStream(pathToOuptutFile);
+  outputStream << this->bestRoster.penalty << endl;
+  outputStream << endl;
+  outputStream << this->bestRoster.table << endl;
+  outputStream.close();
+}
+
+
+void HBAC::SaveSolutionToXML(string pathToOuptutFile)
+{
+  ofstream outputStream(pathToOuptutFile);
+  outputStream << "<Solution>" << endl;
+  outputStream << "<SchedulingPeriodID>" << this->schedulingPeriod.id << "</SchedulingPeriodID>" << endl;
+  outputStream << "<Competitor>xkohut08</Competitor>" << endl;
+  outputStream << "<SoftConstraintsPenalty>" << this->bestRoster.penalty << "</SoftConstraintsPenalty>" << endl;
+  for (int i = 0; i < this->bestRoster.table.rows(); ++i)
+  {
+    for (int j = 0; j < this->bestRoster.table.cols(); ++j)
+    {
+      char shiftType = this->bestRoster.table(i, j);
+      if (shiftType != '-')
+      {
+        string shiftTypeStr;
+        if (shiftType == 'H')
+        {
+          shiftTypeStr = "DH";
+        }
+        else
+        {
+          shiftTypeStr = shiftType;
+        }
+        outputStream << "<Assignment>" << endl;
+        outputStream << "<Date>" << to_iso_extended_string(this->bestRoster.dates[j]) << "</Date>" << endl;
+        outputStream << "<Employee>" << this->bestRoster.employeeIds[i] << "</Employee>" << endl;
+        outputStream << "<ShiftType>" << shiftType << "</ShiftType>" << endl;
+        outputStream << "</Assignment>" << endl;
+      }
+    }
+  }
+  outputStream << "</Solution>" << endl;
+  outputStream.close();
 }
 
 

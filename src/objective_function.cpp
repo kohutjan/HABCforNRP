@@ -339,7 +339,7 @@ int ObjectiveFunction::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
     {
       int weekendIndex = SSWeekendIndexes[i];
       bool nonidentWeekend = ((employeesShifts[weekendIndex] != employeesShifts[weekendIndex + 1]) &&
-                              (employeesShifts[weekendIndex] != NONE && employeesShifts[weekendIndex + 1] != NONE));
+                              (employeesShifts[weekendIndex] != NONE || employeesShifts[weekendIndex + 1] != NONE));
       if (nonidentWeekend)
       {
         penalty += 2;
@@ -351,8 +351,8 @@ int ObjectiveFunction::CheckIdentShiftTypesDuringWeekend(Row employeesShifts,
     for (size_t i = 0; i < FSSWeekendIndexes.size(); ++i)
     {
       int weekendIndex = FSSWeekendIndexes[i];
-      if (employeesShifts[weekendIndex] != NONE &&
-          employeesShifts[weekendIndex + 1] != NONE &&
+      if (employeesShifts[weekendIndex] != NONE ||
+          employeesShifts[weekendIndex + 1] != NONE ||
           employeesShifts[weekendIndex + 2] != NONE)
       {
         char fridayShiftType = employeesShifts[weekendIndex];

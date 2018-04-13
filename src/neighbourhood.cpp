@@ -79,7 +79,7 @@ Roster Neighbourhood::SwapPatternOfShifts(Roster roster)
     vector<int> randomRowIndexes = this->GetRandomIndexes(roster.table.rows(), 2);
     Row firstEmployeesShifts = roster.table.row(randomRowIndexes[0]);
     Row secondEmployeesShifts = roster.table.row(randomRowIndexes[1]);
-    int randomSizeOfPattern = this->GetRandom(2, 6);
+    int randomSizeOfPattern = this->GetRandom(2, 12);
     int randomStartColIndex = this->GetRandom(0, roster.table.cols() - randomSizeOfPattern);
     int colIndex;
     bool patternFound = false;
@@ -137,7 +137,8 @@ bool Neighbourhood::CheckAndSwapPattern(int colIndex, int sizeOfPattern,
   for (int k = 0; k < sizeOfPattern; ++k)
   {
     bool brokenPattern = ((firstEmployeesShifts[colIndex + k] != NONE && secondEmployeesShifts[colIndex + k] == NONE) ||
-                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE));
+                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE) ||
+                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] == NONE));
     if (brokenPattern)
     {
       patternFound = false;

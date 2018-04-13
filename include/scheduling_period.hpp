@@ -20,7 +20,7 @@ class SchedulingPeriod
     SchedulingPeriod(){};
     bool Load(std::string periodFilePath);
     void LoadFromStream(std::ifstream &periodStream);
-    std::string name;
+    std::string id;
     boost::gregorian::date startDate;
     boost::gregorian::date endDate;
     std::map<char, Shift> shifts;

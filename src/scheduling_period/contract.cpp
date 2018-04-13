@@ -46,13 +46,17 @@ void Contract::LoadFromStream(ifstream &periodStream)
   int numberOfUnwantedPatterns;
   int patternId;
   periodStream >> numberOfUnwantedPatterns;
-  cout << numberOfUnwantedPatterns << ", ";
-  periodStream >> ignore;
-  for (int i = 0; i < numberOfUnwantedPatterns; ++i)
+  cout << numberOfUnwantedPatterns;
+  if (numberOfUnwantedPatterns != 0)
   {
-    periodStream >> patternId;
-    this->unwantedPatterns.push_back(patternId);
-    cout << this->unwantedPatterns.back() << " ";
+    cout << ", ";
+    periodStream >> ignore;
+    for (int i = 0; i < numberOfUnwantedPatterns; ++i)
+    {
+      periodStream >> patternId;
+      this->unwantedPatterns.push_back(patternId);
+      cout << this->unwantedPatterns.back() << " ";
+    }
   }
   periodStream >> ignore;
   cout << endl;

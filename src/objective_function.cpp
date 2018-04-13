@@ -7,44 +7,30 @@ int ObjectiveFunction::Forward(Roster roster)
 {
   int penalty = 0;
   int constrainPenalty;
-  if (this->print)
-  {
-    cout << endl;
-    cout << "daysOfWeek" << endl;
-    for (auto& day: roster.daysOfWeek)
-    {
-      cout << day << " ";
-    }
-    cout << endl;
-    cout << endl;
-  }
+  this->employeeIds = roster.employeeIds;
+  this->penalties.clear();
   for (int i = 0; i < roster.table.rows(); ++i)
   {
+    Penalty employeePenalty;
     Employee employee = this->schedulingPeriod.employees[roster.employeeIds[i]];
     int employeeContractId = employee.contractId;
     Contract employeeContract = this->schedulingPeriod.contracts[employeeContractId];
-    if (print)
-    {
-      cout << endl;
-      cout << "employee id: " << roster.employeeIds[i] << endl;
-      cout << "------------------------------------" << endl;
-    }
 
     constrainPenalty = this->CheckNumAssigments(roster.table.row(i), employeeContract.maxNumAssignments,
                                                 employeeContract.minNumAssignments);
-    if (print) cout << "CheckNumAssigments: " << constrainPenalty << endl;
+    employeePenalty.NumAssigments = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckConsecutiveWorkingDays(roster.table.row(i),
                                                          employeeContract.maxConsecutiveWorkingDays,
                                                          employeeContract.minConsecutiveWorkingDays);
-    if (print) cout << "CheckConsecutiveWorkingDays: " << constrainPenalty << endl;
+    employeePenalty.ConsecutiveWorkingDays = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckConsecutiveFreeDays(roster.table.row(i),
                                                       employeeContract.maxConsecutiveFreeDays,
                                                       employeeContract.minConsecutiveFreeDays);
-    if (print) cout << "CheckConsecutiveFreeDays: " << constrainPenalty << endl;
+    employeePenalty.ConsecutiveFreeDays = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckConsecutiveWorkingWeekends(roster.table.row(i),
@@ -52,63 +38,63 @@ int ObjectiveFunction::Forward(Roster roster)
                                                              employeeContract.weekendDefinition,
                                                              employeeContract.maxConsecutiveWorkingWeekends,
                                                              employeeContract.minConsecutiveWorkingWeekends);
-    if (print) cout << "CheckConsecutiveWorkingWeekends: " << constrainPenalty << endl;
+    employeePenalty.ConsecutiveWorkingWeekends = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckMaxWorkingWeekendsInFourWeeks(roster.table.row(i),
                                                                 roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                 employeeContract.weekendDefinition,
                                                                 employeeContract.maxWorkingWeekendsInFourWeeks);
-    if (print) cout << "CheckMaxWorkingWeekendsInFourWeeks: " << constrainPenalty << endl;
+    employeePenalty.MaxWorkingWeekendsInFourWeeks = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckCompleteWeekends(roster.table.row(i),
                                                    roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                    employeeContract.weekendDefinition,
                                                    employeeContract.completeWeekends);
-    if (print) cout << "CheckCompleteWeekends: " << constrainPenalty << endl;
+    employeePenalty.CompleteWeekends = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckIdentShiftTypesDuringWeekend(roster.table.row(i),
                                                                roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                employeeContract.weekendDefinition,
                                                                employeeContract.identShiftTypesDuringWeekend);
-    if (print) cout << "CheckIdentShiftTypesDuringWeekend: " << constrainPenalty << endl;
+    employeePenalty.IdentShiftTypesDuringWeekend = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckNoNightShiftBeforeFreeWeekend(roster.table.row(i),
                                                                 roster.SSWeekendIndexes, roster.FSSWeekendIndexes,
                                                                 employeeContract.weekendDefinition,
                                                                 employeeContract.noNightShiftBeforeFreeWeekend);
-    if (print) cout << "CheckNoNightShiftBeforeFreeWeekend: " << constrainPenalty << endl;
+    employeePenalty.NoNightShiftBeforeFreeWeekend = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckTwoFreeDaysAfterNightShifts(roster.table.row(i),
                                                               employeeContract.twoFreeDaysAfterNightShifts);
-    if (print) cout << "CheckTwoFreeDaysAfterNightShifts: " << constrainPenalty << endl;
+    employeePenalty.TwoFreeDaysAfterNightShifts = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckRequestedDays(roster.table.row(i), roster.dates, employee);
-    if (print) cout << "CheckRequestedDays: " << constrainPenalty << endl;
+    employeePenalty.RequestedDays = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckRequstedShifts(roster.table.row(i), roster.dates, employee);
-    if (print) cout << "CheckRequestedShifts: " << constrainPenalty << endl;
+    employeePenalty.RequstedShifts = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckAlternativeSkillCategory(roster.table.row(i),
                                                            employeeContract.alternativeSkillCategory,
                                                            schedulingPeriod.shifts, employee);
-    if (print) cout << "CheckAlternativeSkillCategory: " << constrainPenalty << endl;
+    employeePenalty.AlternativeSkillCategory = constrainPenalty;
     penalty += constrainPenalty;
 
     constrainPenalty = this->CheckUnwantedPatterns(roster.table.row(i), roster.daysOfWeek,
                                            employeeContract.unwantedPatterns,
                                            schedulingPeriod.patterns);
-    if (print) cout << "CheckUnwantedPatterns: " << constrainPenalty << endl;
+    employeePenalty.UnwantedPatterns = constrainPenalty;
     penalty += constrainPenalty;
 
-    if (print) cout << "------------------------------------" << endl;
+    this->penalties.push_back(employeePenalty);
   }
   return penalty;
 }
@@ -703,4 +689,28 @@ int ObjectiveFunction::CheckConsecutive(int actualConsecutive, Constrain maxCons
     }
   }
   return penalty;
+}
+
+void ObjectiveFunction::SaveOutput(ofstream &outputStream)
+{
+  for (size_t i = 0; i < this->penalties.size(); ++i)
+  {
+    outputStream << endl;
+    outputStream << "employee id: " << this->employeeIds[i] << endl;
+    outputStream << "------------------------------------" << endl;
+    outputStream << "CheckNumAssigments: " << this->penalties[i].NumAssigments << endl;
+    outputStream << "CheckConsecutiveWorkingDays: " << this->penalties[i].ConsecutiveWorkingDays << endl;
+    outputStream << "CheckConsecutiveFreeDays: " << this->penalties[i].ConsecutiveFreeDays << endl;
+    outputStream << "CheckConsecutiveWorkingWeekends: "  << this->penalties[i].ConsecutiveWorkingWeekends << endl;
+    outputStream << "CheckMaxWorkingWeekendsInFourWeeks: " << this->penalties[i].MaxWorkingWeekendsInFourWeeks << endl;
+    outputStream << "CheckCompleteWeekends: " << this->penalties[i].CompleteWeekends << endl;
+    outputStream << "CheckIdentShiftTypesDuringWeekend: " << this->penalties[i].IdentShiftTypesDuringWeekend << endl;
+    outputStream << "CheckNoNightShiftBeforeFreeWeekend: " << this->penalties[i].NoNightShiftBeforeFreeWeekend << endl;
+    outputStream << "CheckTwoFreeDaysAfterNightShifts: " << this->penalties[i].TwoFreeDaysAfterNightShifts << endl;
+    outputStream << "CheckRequestedDays: " << this->penalties[i].RequestedDays << endl;
+    outputStream << "CheckRequstedShifts: " << this->penalties[i].RequstedShifts << endl;
+    outputStream << "CheckAlternativeSkillCategory: " << this->penalties[i].AlternativeSkillCategory << endl;
+    outputStream << "CheckUnwantedPatterns: " << this->penalties[i].UnwantedPatterns << endl;
+    outputStream << "------------------------------------" << endl;
+  }
 }

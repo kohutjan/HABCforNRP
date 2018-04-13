@@ -8,6 +8,7 @@
 
 #include "scheduling_period.hpp"
 #include "roster.hpp"
+#include "penalty.hpp"
 
 typedef Eigen::DenseBase<Eigen::Matrix<char, -1, -1>>::RowXpr Row;
 
@@ -19,7 +20,7 @@ class ObjectiveFunction
     ObjectiveFunction(SchedulingPeriod _schedulingPeriod) :
                       schedulingPeriod(_schedulingPeriod){};
     int Forward(Roster roster);
-    void setPrint() { print = true; }
+    void SaveOutput(std::ofstream &outputStream);
     ~ObjectiveFunction(){}
   private:
     int CheckNumAssigments(Row employeesShifts, Constrain maxNumAssignments,
@@ -72,7 +73,8 @@ class ObjectiveFunction
     int CheckConsecutive(int actualConsecutive, Constrain maxConsecutiveDays,
                          Constrain minConsecutiveDays);
     SchedulingPeriod schedulingPeriod;
-    bool print = false;
+    std::vector<Penalty> penalties;
+    std::vector<int> employeeIds;
 };
 
 #endif

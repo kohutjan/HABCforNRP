@@ -247,9 +247,20 @@ void HBAC::SendScoutBees()
 void HBAC::SaveSolution(string pathToOuptutFile)
 {
   ofstream outputStream(pathToOuptutFile);
-  outputStream << this->bestRoster.penalty << endl;
-  outputStream << endl;
+  Roster randomRoster;
+  randomRoster.Init(this->schedulingPeriod.startDate, this->schedulingPeriod.endDate,
+                    this->schedulingPeriod.employees, this->schedulingPeriod.shifts,
+                    this->schedulingPeriod.dayOfWeekCover,
+                    this->schedulingPeriod.dateSpecificCover);
   outputStream << this->bestRoster.table << endl;
+  outputStream << endl;
+  this->objectiveFunction.Forward(this->bestRoster);
+  this->objectiveFunction.SaveOutput(outputStream);
+  outputStream << endl;
+  outputStream << "Solution: " << this->bestRoster.penalty << endl;
+  int randomPenalty = this->objectiveFunction.Forward(randomRoster);
+  outputStream << "Random solution: " << randomPenalty << endl;
+  outputStream << endl;
   outputStream.close();
 }
 
@@ -280,7 +291,7 @@ void HBAC::SaveSolutionToXML(string pathToOuptutFile)
         outputStream << "<Assignment>" << endl;
         outputStream << "<Date>" << to_iso_extended_string(this->bestRoster.dates[j]) << "</Date>" << endl;
         outputStream << "<Employee>" << this->bestRoster.employeeIds[i] << "</Employee>" << endl;
-        outputStream << "<ShiftType>" << shiftType << "</ShiftType>" << endl;
+        outputStream << "<ShiftType>" << shiftTypeStr << "</ShiftType>" << endl;
         outputStream << "</Assignment>" << endl;
       }
     }

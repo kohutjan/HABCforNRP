@@ -36,7 +36,7 @@ def parse_args():
     parser.add_argument('-o', '--output-folder',
                         type=str,
                         required=True,
-                        help="Folder with scheduling periods.")
+                        help="Folder to store output files.")
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help="Print output of nrp to stdout.")

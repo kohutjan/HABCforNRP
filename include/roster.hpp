@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <random>
 #include "boost/date_time/gregorian/gregorian.hpp"
 
 #include "scheduling_period/days.hpp"

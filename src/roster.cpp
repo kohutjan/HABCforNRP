@@ -171,6 +171,7 @@ void Roster::InitShiftOrdering()
 
 void Roster::Print()
 {
+  /*
   cout << "Sum of demands" << endl;
   for (auto& demand: this->sumOfDemands)
   {
@@ -183,9 +184,11 @@ void Roster::Print()
   {
     cout << shift << " ";
   }
+  */
   cout << endl;
   cout << endl;
   cout << "Matrix dimension: " <<  this->table.rows() << ", " << this->table.cols() << endl;
+  /*
   cout << endl;
   cout << endl;
   cout << "SaturdaySunday indexes" << endl;
@@ -200,6 +203,7 @@ void Roster::Print()
   {
     cout << indexDay << " ";
   }
+  */
   cout << endl;
   cout << endl;
   cout << this->table << endl;

@@ -25,6 +25,10 @@ def parse_args():
                         type=int,
                         required=True,
                         help="Limit.")
+    parser.add_argument('-c', '--HCR',
+                        type=float,
+                        default=0.0,
+                        help="Hill climbing constant.")
     parser.add_argument('-r', '--run-number',
                         type=int,
                         required=True,
@@ -74,6 +78,7 @@ def main():
                        '-n', str(args.solution_number),
                        '-s', str(args.seconds),
                        '-l', str(args.limit),
+                       '-h', str(args.HCR),
                        '-f', str(args.seconds),
                        '-o', outputPath,
                        '-x', xmlOutputPath]

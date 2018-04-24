@@ -246,6 +246,10 @@ void HBAC::SendScoutBees()
 
 void HBAC::SaveSolution(string pathToOuptutFile)
 {
+  if (pathToOuptutFile.empty())
+  {
+    return;
+  }
   ofstream outputStream(pathToOuptutFile);
   Roster randomRoster;
   randomRoster.Init(this->schedulingPeriod.startDate, this->schedulingPeriod.endDate,
@@ -262,11 +266,16 @@ void HBAC::SaveSolution(string pathToOuptutFile)
   outputStream << "Random solution: " << randomPenalty << endl;
   outputStream << endl;
   outputStream.close();
+  return;
 }
 
 
 void HBAC::SaveSolutionToXML(string pathToOuptutFile)
 {
+  if (pathToOuptutFile.empty())
+  {
+    return;
+  }
   ofstream outputStream(pathToOuptutFile);
   outputStream << "<Solution>" << endl;
   outputStream << "<SchedulingPeriodID>" << this->schedulingPeriod.id << "</SchedulingPeriodID>" << endl;
@@ -298,6 +307,7 @@ void HBAC::SaveSolutionToXML(string pathToOuptutFile)
   }
   outputStream << "</Solution>" << endl;
   outputStream.close();
+  return;
 }
 
 
@@ -306,21 +316,24 @@ void HBAC::TestRosters()
   int index = 0;
   ObjectiveFunction objectiveFunction(this->schedulingPeriod);
   Neighbourhood neighbourhood;
+  neighbourhood.setPrint();
+  this->InitFood();
   for (auto& roster: this->rosters)
   {
     int penalty = objectiveFunction.Forward(roster);
-    Roster newRoster = neighbourhood.TokenRingMove(roster);
-    newRoster = neighbourhood.MoveNeighbourhoodStructure(roster);
-    newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
-    newRoster = neighbourhood.SwapPatternOfShifts(roster);
+    Roster newRoster;
+    newRoster = neighbourhood.TokenRingMove(roster);
+    //newRoster = neighbourhood.MoveNeighbourhoodStructure(roster);
+    //newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
+    //newRoster = neighbourhood.SwapPatternOfShifts(roster);
     int newPenalty = objectiveFunction.Forward(newRoster);
-    //roster.Print();
+    roster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for roster " << index << ": " << penalty;
     cout << endl;
     cout << endl;
-    //newRoster.Print();
+    newRoster.Print();
     cout << endl;
     cout << endl;
     cout << "Objective function output for new roster " << index << ": " << newPenalty;
@@ -328,4 +341,5 @@ void HBAC::TestRosters()
     cout << endl;
     ++index;
   }
+  return;
 }

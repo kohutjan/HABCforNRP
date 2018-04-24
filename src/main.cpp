@@ -14,6 +14,7 @@ int main(int argc, char **argv)
   {"solution-number", required_argument, 0, 'n'},
   {"seconds", required_argument, 0, 's'},
   {"limit", required_argument, 0, 'l'},
+  {"HCR", required_argument, 0, 'h'},
   {"output-frequency", required_argument, 0, 'f'},
   {"output", required_argument, 0, 'o'},
   {"xml-output", required_argument, 0, 'x'},
@@ -23,6 +24,7 @@ int main(int argc, char **argv)
   int SN;
   int timeToSolve;
   int limit;
+  float HCR;
   int outputFrequency;
   string outputPath;
   string xmlOutputPath;
@@ -32,7 +34,7 @@ int main(int argc, char **argv)
   cout << "#############################################################" << endl;
   int option_index = 0;
   int opt = 0;
-  while ((opt = getopt_long(argc, argv, "p:n:s:l:f:o:x:", long_options, &option_index)) != -1)
+  while ((opt = getopt_long(argc, argv, "p:n:s:l:h:f:o:x:", long_options, &option_index)) != -1)
   {
     switch (opt)
     {
@@ -54,6 +56,11 @@ int main(int argc, char **argv)
       case 'l':
         limit = stoi(optarg);
         cout << "Limit: " << optarg << endl;
+        break;
+
+      case 'h':
+        HCR = stof(optarg);
+        cout << "Hill climbing constant: " << optarg << endl;
         break;
 
       case 'f':
@@ -88,8 +95,17 @@ int main(int argc, char **argv)
 
   SchedulingPeriod schedulingPeriod;
   schedulingPeriod.Load(periodFilePath);
-  HBAC hbac(SN, timeToSolve, limit, 0.5, outputFrequency);
+  HBAC hbac;
+  if (HCR == 0.0)
+  {
+    hbac = HBAC(SN, timeToSolve, limit, outputFrequency);
+  }
+  else
+  {
+    hbac = HBAC(SN, timeToSolve, limit, HCR, outputFrequency);
+  }
   hbac.setSchedulingPeriod(schedulingPeriod);
+  //hbac.TestRosters();
   hbac.Run();
   hbac.SaveSolution(outputPath);
   hbac.SaveSolutionToXML(xmlOutputPath);

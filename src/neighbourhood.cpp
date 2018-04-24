@@ -79,7 +79,7 @@ Roster Neighbourhood::SwapPatternOfShifts(Roster roster)
     vector<int> randomRowIndexes = this->GetRandomIndexes(roster.table.rows(), 2);
     Row firstEmployeesShifts = roster.table.row(randomRowIndexes[0]);
     Row secondEmployeesShifts = roster.table.row(randomRowIndexes[1]);
-    int randomSizeOfPattern = this->GetRandom(2, 12);
+    int randomSizeOfPattern = this->GetRandom(2, 5);
     int randomStartColIndex = this->GetRandom(0, roster.table.cols() - randomSizeOfPattern);
     int colIndex;
     bool patternFound = false;
@@ -217,8 +217,8 @@ Roster Neighbourhood::TokenRingMove(Roster roster)
         for (size_t k = j + 1; k < saturdaySunday.size(); ++k)
         {
           int secondWeekendIndex = saturdaySunday[k];
-          if (saturday[firstWeekendIndex] == sunday[secondWeekendIndex] &&
-              saturday[secondWeekendIndex] == sunday[firstWeekendIndex] &&
+          if ((saturday[firstWeekendIndex] == sunday[secondWeekendIndex] ||
+              saturday[secondWeekendIndex] == sunday[firstWeekendIndex]) &&
               saturday[firstWeekendIndex] != sunday[firstWeekendIndex])
           {
             char sundayFirstShift = sunday[firstWeekendIndex];

@@ -1,9 +1,9 @@
-#include "HBAC.hpp"
+#include "HABC.hpp"
 
 using namespace std;
 using namespace boost::gregorian;
 
-void HBAC::Run()
+void HABC::Run()
 {
   auto startTime = chrono::high_resolution_clock::now();
   auto lastOutput = chrono::high_resolution_clock::now();
@@ -39,7 +39,7 @@ void HBAC::Run()
 }
 
 
-void HBAC::InitFood()
+void HABC::InitFood()
 {
   for (int i = 0; i < this->SN; ++i)
   {
@@ -61,7 +61,7 @@ void HBAC::InitFood()
 }
 
 
-void HBAC::SortRosters()
+void HABC::SortRosters()
 {
   sort( this->rosters.begin( ), this->rosters.end( ), [&]( const Roster& roster1, const Roster& roster2 )
   {
@@ -71,11 +71,12 @@ void HBAC::SortRosters()
 }
 
 
-void HBAC::SendEmployedBeesWithHillClimbing()
+void HABC::SendEmployedBeesWithHillClimbing()
 {
   random_device rd;
   mt19937 eng(rd());
   std::uniform_real_distribution<> dis(0.0, 1.0);
+  bool newRosterSet = false;
   for (auto& roster: this->rosters)
   {
     if (dis(eng) <= this->HCR)
@@ -111,11 +112,16 @@ void HBAC::SendEmployedBeesWithHillClimbing()
         {
           int betterRosterIndex = this->neighbourhood.GetRandom(0, betterRosters.size() - 1);
           roster = betterRosters[betterRosterIndex];
+          newRosterSet = true;
         }
         else
         {
           break;
         }
+      }
+      if (not newRosterSet)
+      {
+        ++roster.trial;
       }
     }
   }
@@ -123,7 +129,7 @@ void HBAC::SendEmployedBeesWithHillClimbing()
 }
 
 
-void HBAC::SendEmployedBees()
+void HABC::SendEmployedBees()
 {
   for (auto& roster: this->rosters)
   {
@@ -148,7 +154,7 @@ void HBAC::SendEmployedBees()
 }
 
 
-Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
+Roster HABC::ApplyRandomNeighbourhood(Roster& roster)
 {
   int neighbourhoodIndex = this->neighbourhood.GetRandomNeighbourhood();
   Roster newRoster;
@@ -177,52 +183,54 @@ Roster HBAC::ApplyRandomNeighbourhood(Roster& roster)
 }
 
 
-void HBAC::SendOnlookerBees()
+void HABC::SendOnlookerBees()
 {
-  this->SortRosters();
-  random_device rd;
-  mt19937 eng(rd());
-  std::uniform_real_distribution<> dis(0.0, 1.0);
-  float r = dis(eng);
-  int i = 0;
-  float sumProb = 0;
-  float penaltySum = 0;
-  for (auto& roster: this->rosters)
+  for (int i = 0; i < this->SN; ++i)
   {
-    penaltySum += roster.penalty;
-  }
-  while (i < this->SN)
-  {
-    sumProb += this->rosters[i].penalty / penaltySum;
-    if (sumProb >= r)
+    random_device rd;
+    mt19937 eng(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    float r = dis(eng);
+    int j = 0;
+    float sumProb = 0;
+    float penaltySum = 0;
+    for (auto& roster: this->rosters)
     {
-      break;
+      penaltySum += roster.penalty;
+    }
+    while (j < this->SN)
+    {
+      sumProb += this->rosters[j].penalty / penaltySum;
+      if (sumProb > r)
+      {
+        break;
+      }
+      else
+      {
+        ++j;
+      }
+    }
+    //cout << "R: " << r << endl;
+    //cout << "Sum prob: " << sumProb << endl;
+    //cout << "Onlooker pick: ";
+    //cout << this->rosters[i].penalty << endl;
+    Roster newRoster;
+    newRoster = this->ApplyRandomNeighbourhood(this->rosters[j]);
+    newRoster.penalty = this->objectiveFunction.Forward(newRoster);
+    if (newRoster.penalty < this->rosters[j].penalty)
+    {
+      this->rosters[j] = newRoster;
     }
     else
     {
-      ++i;
+      ++this->rosters[j].trial;
     }
-  }
-  //cout << "R: " << r << endl;
-  //cout << "Sum prob: " << sumProb << endl;
-  //cout << "Onlooker pick: ";
-  //cout << this->rosters[i].penalty << endl;
-  Roster newRoster;
-  newRoster = this->ApplyRandomNeighbourhood(this->rosters[i]);
-  newRoster.penalty = this->objectiveFunction.Forward(newRoster);
-  if (newRoster.penalty < this->rosters[i].penalty)
-  {
-    this->rosters[i] = newRoster;
-  }
-  else
-  {
-    ++this->rosters[i].trial;
   }
   return;
 }
 
 
-void HBAC::SendScoutBees()
+void HABC::SendScoutBees()
 {
   this->SortRosters();
   if (this->rosters[0].penalty < this->bestRoster.penalty)
@@ -244,7 +252,7 @@ void HBAC::SendScoutBees()
 }
 
 
-void HBAC::SaveSolution(string pathToOuptutFile)
+void HABC::SaveSolution(string pathToOuptutFile)
 {
   if (pathToOuptutFile.empty())
   {
@@ -270,7 +278,7 @@ void HBAC::SaveSolution(string pathToOuptutFile)
 }
 
 
-void HBAC::SaveSolutionToXML(string pathToOuptutFile)
+void HABC::SaveSolutionToXML(string pathToOuptutFile)
 {
   if (pathToOuptutFile.empty())
   {
@@ -311,7 +319,7 @@ void HBAC::SaveSolutionToXML(string pathToOuptutFile)
 }
 
 
-void HBAC::TestRosters()
+void HABC::TestRosters()
 {
   int index = 0;
   ObjectiveFunction objectiveFunction(this->schedulingPeriod);

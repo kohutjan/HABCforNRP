@@ -2,7 +2,7 @@
 #include <string>
 #include <getopt.h>
 
-#include "HBAC.hpp"
+#include "HABC.hpp"
 
 
 using namespace std;
@@ -95,19 +95,19 @@ int main(int argc, char **argv)
 
   SchedulingPeriod schedulingPeriod;
   schedulingPeriod.Load(periodFilePath);
-  HBAC hbac;
+  HABC habc;
   if (HCR == 0.0)
   {
-    hbac = HBAC(SN, timeToSolve, limit, outputFrequency);
+    habc = HABC(SN, timeToSolve, limit, outputFrequency);
   }
   else
   {
-    hbac = HBAC(SN, timeToSolve, limit, HCR, outputFrequency);
+    habc = HABC(SN, timeToSolve, limit, HCR, outputFrequency);
   }
-  hbac.setSchedulingPeriod(schedulingPeriod);
-  //hbac.TestRosters();
-  hbac.Run();
-  hbac.SaveSolution(outputPath);
-  hbac.SaveSolutionToXML(xmlOutputPath);
+  habc.setSchedulingPeriod(schedulingPeriod);
+  //habc.TestRosters();
+  habc.Run();
+  habc.SaveSolution(outputPath);
+  habc.SaveSolutionToXML(xmlOutputPath);
   return 0;
 }

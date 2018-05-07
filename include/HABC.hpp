@@ -1,5 +1,5 @@
-#ifndef HBAC_HPP
-#define HBAC_HPP
+#ifndef HABC_HPP
+#define HABC_HPP
 
 #include <iostream>
 #include <vector>
@@ -12,18 +12,18 @@
 #include "neighbourhood.hpp"
 
 
-class HBAC
+class HABC
 {
   public:
-    HBAC(){}
-    HBAC(int _SN, int _timeToSolve, int _limit, int _outputFrequency) :
+    HABC(){}
+    HABC(int _SN, int _timeToSolve, int _limit, int _outputFrequency) :
          SN(_SN), limit(_limit)
     {
       hillClimbing = false;
       timeToSolve = std::chrono::milliseconds(_timeToSolve * 1000);
       outputFrequency = std::chrono::milliseconds(_outputFrequency * 1000);
     }
-    HBAC(int _SN, int _timeToSolve, int _limit, float _HCR, int _outputFrequency) :
+    HABC(int _SN, int _timeToSolve, int _limit, float _HCR, int _outputFrequency) :
          SN(_SN), limit(_limit), HCR(_HCR)
     {
       hillClimbing = true;
@@ -39,7 +39,7 @@ class HBAC
     void SaveSolution(std::string pathToOuptutFile);
     void SaveSolutionToXML(std::string pathToOuptutFile);
     void TestRosters();
-    ~HBAC(){}
+    ~HABC(){}
   private:
     SchedulingPeriod schedulingPeriod;
     ObjectiveFunction objectiveFunction;

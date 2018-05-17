@@ -1,9 +1,10 @@
 Přeložení programu:
-cd HABC
+cd HABCforNRP
 ./scripts/download_eigen.sh //stažení knihovny Eigen a přesun do include
 mkdir build
 cd build
 cmake ..
+make -j7
 
 Parametry programu:
 --period, -p : definice problému v rámci soutěže INRC2010
@@ -22,6 +23,6 @@ Ukazkové spuštění:
 #Běh algoritmu je omezen maximálním počtem vygenerovaných rozvrhů 20000
 ./build/nrp -p tests/sprint01.txt -n 10 -l 1000 -h 0.5 -i 20000 -r -f 1000 -o tests/out_sprint01.txt
 #Běh algoritmu je omezen maximálním počtem iterací 500
-./build/nrp -p tests/medium01.txt -n 10 -l 1000 -h 0.5 -i 500 -v -f 100 -o tests/out_medium01.txt
+./build/nrp -p tests/medium01.txt -n 10 -l 1000 -h 0.5 -i 400 -v -f 50 -o tests/out_medium01.txt
 #Běh algoritmu je omezen maximálním počtem sekund 7
-./build/nrp -p tests/long01.txt -n 10 -l 1000 -h 0.5 -i 7 -t -f 1 -o tests/out_long01.txt
+./build/nrp -p tests/long01.txt -n 10 -l 1000 -h 0.5 -i 15 -t -f 1 -o tests/out_long01.txt

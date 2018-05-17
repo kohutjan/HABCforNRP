@@ -12,29 +12,35 @@ int main(int argc, char **argv)
   static struct option long_options[] = {
   {"period", required_argument, 0, 'p'},
   {"solution-number", required_argument, 0, 'n'},
-  {"seconds", required_argument, 0, 's'},
+  {"rosters-iter-seconds", required_argument, 0, 'i'},
   {"limit", required_argument, 0, 'l'},
   {"HCR", required_argument, 0, 'h'},
   {"output-frequency", required_argument, 0, 'f'},
   {"output", required_argument, 0, 'o'},
   {"xml-output", required_argument, 0, 'x'},
+  {"time-mode", no_argument, 0, 't'},
+  {"roster-mode", no_argument, 0, 'r'},
+  {"iter-mode", no_argument, 0, 'v'},
   {0, 0, 0, 0}};
 
   string periodFilePath;
   int SN;
-  int timeToSolve;
+  int timeIterRosterToSolve;
   int limit;
   float HCR;
   int outputFrequency;
   string outputPath;
   string xmlOutputPath;
+  bool timeMode = false;
+  bool iterMode = false;
+  bool rosterMode = false;
 
   cout << endl;
   cout << "Params" << endl;
   cout << "#############################################################" << endl;
   int option_index = 0;
   int opt = 0;
-  while ((opt = getopt_long(argc, argv, "p:n:s:l:h:f:o:x:", long_options, &option_index)) != -1)
+  while ((opt = getopt_long(argc, argv, "p:n:i:l:h:f:o:x:trv", long_options, &option_index)) != -1)
   {
     switch (opt)
     {
@@ -48,9 +54,9 @@ int main(int argc, char **argv)
         cout << "Number of solutions: " << optarg << endl;
         break;
 
-      case 's':
-        timeToSolve = stoi(optarg);
-        cout << "Time to solve: " << optarg << endl;
+      case 'i':
+        timeIterRosterToSolve = stoi(optarg);
+        cout << "Time to solve / iterations / rosters limit: " << optarg << endl;
         break;
 
       case 'l':
@@ -65,7 +71,7 @@ int main(int argc, char **argv)
 
       case 'f':
         outputFrequency = stoi(optarg);
-        cout << "Output frequency in sec: " << optarg << endl;
+        cout << "Output frequency in sec / iterations: " << optarg << endl;
         break;
 
       case 'o':
@@ -76,6 +82,21 @@ int main(int argc, char **argv)
       case 'x':
         xmlOutputPath = optarg;
         cout << "XML output path: " << optarg << endl;
+        break;
+
+      case 't':
+        timeMode = true;
+        cout << "Time mode set to True" << endl;
+        break;
+
+      case 'r':
+        rosterMode = true;
+        cout << "Roster limit mode set to True" << endl;
+        break;
+
+      case 'v':
+        iterMode = true;
+        cout << "Iterations mode set to True" << endl;
         break;
 
       default:
@@ -98,16 +119,48 @@ int main(int argc, char **argv)
   HABC habc;
   if (HCR == 0.0)
   {
-    habc = HABC(SN, timeToSolve, limit, outputFrequency);
+    if (timeMode)
+    {
+      habc = HABC(SN, timeIterRosterToSolve, limit, outputFrequency);
+    }
+    else
+    {
+      habc = HABC(SN, limit);
+    }
   }
   else
   {
-    habc = HABC(SN, timeToSolve, limit, HCR, outputFrequency);
+    if (timeMode)
+    {
+      habc = HABC(SN, timeIterRosterToSolve, limit, HCR, outputFrequency);
+    }
+    else
+    {
+      habc = HABC(SN, limit, HCR);
+    }
   }
   habc.setSchedulingPeriod(schedulingPeriod);
-  //habc.TestRosters();
-  habc.Run();
-  habc.SaveSolution(outputPath);
-  habc.SaveSolutionToXML(xmlOutputPath);
+  if (timeMode)
+  {
+    habc.Run();
+  }
+  else {
+  if (iterMode)
+  {
+    habc.RunIter(timeIterRosterToSolve, outputFrequency);
+  }
+  else {
+  if (rosterMode)
+  {
+    habc.RunRostersLimit(timeIterRosterToSolve, outputFrequency);
+  }}}
+  if (not outputPath.empty())
+  {
+    habc.SaveSolution(outputPath);
+  }
+  if (not xmlOutputPath.empty())
+  {
+    habc.SaveSolutionToXML(xmlOutputPath);
+  }
   return 0;
 }

@@ -1,7 +1,6 @@
 import sys
 import argparse
 import os
-import subprocess
 import shutil
 from glob import glob
 import numpy as np
@@ -42,6 +41,7 @@ def main():
         instanceFile.write('{:^12}'.format("Random mean"))
         instanceFile.write('\n\n')
         runDirs = glob(instance + "*/")
+        meanOfMeans = []
         for solutionFileName in NaturalSort(os.listdir(runDirs[0])):
             if solutionFileName.endswith(".txt"):
                 solutionRandomPenalty = np.empty(len(runDirs))
@@ -65,10 +65,12 @@ def main():
                 instanceFile.write('{:^12}'.format(np.amin(solutionPenalty)))
                 instanceFile.write('{:^12}'.format(solutionPenalty.mean()))
                 instanceFile.write('{:^12}'.format(np.std(solutionPenalty)))
+                meanOfMeans.append(solutionPenalty.mean())
                 if args.inrc:
                     instanceFile.write('{:^12}'.format(inrcSolutionPenalty.mean()))
                 instanceFile.write('{:^12}'.format(solutionRandomPenalty.mean()))
                 instanceFile.write('\n')
+        instanceFile.write("\nMean of means: {}".format(np.asarray(meanOfMeans).mean()))
         instanceFile.close()
 
 #https://stackoverflow.com/questions/2669059/how-to-sort-alpha-numeric-set-in-python

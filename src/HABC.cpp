@@ -3,6 +3,55 @@
 using namespace std;
 using namespace boost::gregorian;
 
+void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
+{
+  int freq = outputFrequency;
+  this->generatedRosters = 0;
+  this->InitFood();
+  while(rostersLimit > this->generatedRosters)
+  {
+    if (this->generatedRosters > freq)
+    {
+      freq = this->generatedRosters + outputFrequency;
+      cout << this->bestRoster.penalty << endl;
+    }
+    if (this->hillClimbing)
+    {
+      this->SendEmployedBeesWithHillClimbing();
+    }
+    else
+    {
+      this->SendEmployedBees();
+    }
+    this->SendOnlookerBees();
+    this->SendScoutBees();
+  }
+  cout << this->bestRoster.penalty << endl;
+}
+
+void HABC::RunIter(int iterations, int outputFrequency)
+{
+  this->InitFood();
+  for (int i = 0; i < iterations; ++i)
+  {
+    if (i % outputFrequency == 0)
+    {
+      cout << this->bestRoster.penalty << endl;
+    }
+    if (this->hillClimbing)
+    {
+      this->SendEmployedBeesWithHillClimbing();
+    }
+    else
+    {
+      this->SendEmployedBees();
+    }
+    this->SendOnlookerBees();
+    this->SendScoutBees();
+  }
+  cout << this->bestRoster.penalty << endl;
+}
+
 void HABC::Run()
 {
   auto startTime = chrono::high_resolution_clock::now();
@@ -50,6 +99,7 @@ void HABC::InitFood()
                 this->schedulingPeriod.dateSpecificCover);
     this->rosters.push_back(roster);
   }
+  this->generatedRosters += this->SN;
   for (auto& roster: this->rosters)
   {
     roster.penalty = this->objectiveFunction.Forward(roster);
@@ -83,6 +133,21 @@ void HABC::SendEmployedBeesWithHillClimbing()
     {
       while(1)
       {
+        /*
+        Roster newRoster;
+        newRoster = this->ApplyRandomNeighbourhood(roster);
+        newRoster.penalty = this->objectiveFunction.Forward(newRoster);
+        if (newRoster.penalty < roster.penalty)
+        {
+          roster = newRoster;
+          newRosterSet = true;
+        }
+        else
+        {
+          break;
+        }
+        */
+
         Roster moveRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
         moveRoster.penalty = this->objectiveFunction.Forward(moveRoster);
         Roster swapRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
@@ -91,6 +156,7 @@ void HABC::SendEmployedBeesWithHillClimbing()
         patternRoster.penalty = this->objectiveFunction.Forward(patternRoster);
         Roster tokenRoster = this->neighbourhood.TokenRingMove(roster);
         tokenRoster.penalty = this->objectiveFunction.Forward(tokenRoster);
+        this->generatedRosters += 4;
         vector<Roster> betterRosters;
         if (moveRoster.penalty < roster.penalty)
         {
@@ -179,6 +245,7 @@ Roster HABC::ApplyRandomNeighbourhood(Roster& roster)
     default:
       break;
   }
+  ++this->generatedRosters;
   return newRoster;
 }
 
@@ -198,9 +265,27 @@ void HABC::SendOnlookerBees()
     {
       penaltySum += roster.penalty;
     }
+    vector<float> probVals(this->rosters.size());
+    for (size_t j = 0; j < this->rosters.size(); ++j)
+    {
+      probVals[j] = this->rosters[j].penalty / penaltySum;
+    }
+    vector<int> rostersIndexes(probVals.size());
+    size_t n(0);
+    generate(begin(rostersIndexes), end(rostersIndexes), [&]{ return n++; });
+    sort(begin(rostersIndexes), end(rostersIndexes),
+         [&](int i1, int i2) { return probVals[i1] < probVals[i2]; } );
+    vector<float> rulVals(this->rosters.size());
+    for (size_t j = 0; j < this->rosters.size(); ++j)
+    {
+      rulVals[rostersIndexes[this->rosters.size() - j - 1]] = probVals[rostersIndexes[j]];
+    }
+
+
     while (j < this->SN)
     {
-      sumProb += this->rosters[j].penalty / penaltySum;
+      //sumProb += this->rosters[j].penalty / penaltySum;
+      sumProb += rulVals[j];
       if (sumProb > r)
       {
         break;
@@ -247,6 +332,7 @@ void HABC::SendScoutBees()
                 this->schedulingPeriod.dateSpecificCover);
     roster.penalty = this->objectiveFunction.Forward(roster);
     this->rosters[randomRosterIndex] = roster;
+    ++this->generatedRosters;
   }
   return;
 }

@@ -30,12 +30,23 @@ class HABC
       timeToSolve = std::chrono::milliseconds(_timeToSolve * 1000);
       outputFrequency = std::chrono::milliseconds(_outputFrequency * 1000);
     }
+    HABC(int _SN, int _limit) : SN(_SN), limit(_limit)
+    {
+      hillClimbing = false;
+    }
+    HABC(int _SN, int _limit, float _HCR) : SN(_SN), limit(_limit), HCR(_HCR)
+    {
+      hillClimbing = true;
+    }
     void setSchedulingPeriod(SchedulingPeriod _schedulingPeriod)
     {
       schedulingPeriod = _schedulingPeriod;
+      neighbourhood = Neighbourhood(_schedulingPeriod);
       objectiveFunction = ObjectiveFunction(schedulingPeriod);
     }
     void Run();
+    void RunIter(int iterations, int outputFrequency);
+    void RunRostersLimit(int rostersLimit, int outputFrequency);
     void SaveSolution(std::string pathToOuptutFile);
     void SaveSolutionToXML(std::string pathToOuptutFile);
     void TestRosters();
@@ -49,6 +60,7 @@ class HABC
     int limit;
     float HCR;
     std::chrono::duration<double, std::milli> outputFrequency;
+    int generatedRosters;
     std::vector<Roster> rosters;
     Roster bestRoster;
     bool hillClimbing;

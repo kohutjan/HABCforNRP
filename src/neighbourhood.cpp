@@ -8,7 +8,7 @@ Roster Neighbourhood::MoveNeighbourhoodStructure(Roster roster)
   {
     int randomColIndex = this->GetRandom(0, roster.table.cols() - 1);
     Col randomDayShifts = roster.table.col(randomColIndex);
-    vector<int> noneShiftIndexes = this->GetNoneShiftIndexes(randomDayShifts);
+    vector<int> noneShiftIndexes = this->GetNoneShiftIndexes(roster, randomColIndex);
     vector<int> anyShiftIndexes = this->GetAnyShiftIndexes(randomDayShifts);
     if (noneShiftIndexes.empty() || anyShiftIndexes.empty())
     {
@@ -136,14 +136,16 @@ bool Neighbourhood::CheckAndSwapPattern(int colIndex, int sizeOfPattern,
   bool identicalPattern = true;
   for (int k = 0; k < sizeOfPattern; ++k)
   {
+    /*
     bool brokenPattern = ((firstEmployeesShifts[colIndex + k] != NONE && secondEmployeesShifts[colIndex + k] == NONE) ||
-                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE) ||
-                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] == NONE));
+                          (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE));
     if (brokenPattern)
     {
       patternFound = false;
       break;
     }
+    */
+
     if (firstEmployeesShifts[colIndex + k] != secondEmployeesShifts[colIndex + k])
     {
       identicalPattern = false;
@@ -182,21 +184,20 @@ Roster Neighbourhood::TokenRingMove(Roster roster)
         sundayNone.push_back(j);
       }
     }
-    if (saturdayNone.empty() || sundayNone.empty())
+    if (not (saturdayNone.empty() || sundayNone.empty()))
     {
-      continue;
-    }
-    int randomSaturdayNoneIndex = saturdayNone[this->GetRandom(0, saturdayNone.size() - 1)];
-    int randomSundayNoneIndex = sundayNone[this->GetRandom(0, sundayNone.size() - 1)];
-    saturday[randomSaturdayNoneIndex] = saturday[randomSundayNoneIndex];
-    saturday[randomSundayNoneIndex] = NONE;
+      int randomSaturdayNoneIndex = saturdayNone[this->GetRandom(0, saturdayNone.size() - 1)];
+      int randomSundayNoneIndex = sundayNone[this->GetRandom(0, sundayNone.size() - 1)];
+      saturday[randomSaturdayNoneIndex] = saturday[randomSundayNoneIndex];
+      saturday[randomSundayNoneIndex] = NONE;
 
-    if (this->print)
-    {
-      cout << endl;
-      cout << "Weekend index: " << randomWeekendIndex << endl;
-      cout << "Saturday none index: " << randomSaturdayNoneIndex << endl;
-      cout << "Sunday none index: " << randomSundayNoneIndex << endl;
+      if (this->print)
+      {
+        cout << endl;
+        cout << "Weekend index: " << randomWeekendIndex << endl;
+        cout << "Saturday none index: " << randomSaturdayNoneIndex << endl;
+        cout << "Sunday none index: " << randomSundayNoneIndex << endl;
+      }
     }
 
     vector<int> saturdaySunday;
@@ -207,35 +208,36 @@ Roster Neighbourhood::TokenRingMove(Roster roster)
         saturdaySunday.push_back(j);
       }
     }
+    if (saturdaySunday.size() < 2)
+    {
+      continue;
+    }
     int firstWeekend;
     int secondWeekend;
-    if (saturdaySunday.size() > 1)
+    for (size_t j = 0; j < saturdaySunday.size(); ++j)
     {
-      for (size_t j = 0; j < saturdaySunday.size(); ++j)
+      int firstWeekendIndex = saturdaySunday[j];
+      for (size_t k = j + 1; k < saturdaySunday.size(); ++k)
       {
-        int firstWeekendIndex = saturdaySunday[j];
-        for (size_t k = j + 1; k < saturdaySunday.size(); ++k)
+        int secondWeekendIndex = saturdaySunday[k];
+        if ((saturday[firstWeekendIndex] == sunday[secondWeekendIndex] ||
+            saturday[secondWeekendIndex] == sunday[firstWeekendIndex]) &&
+            saturday[firstWeekendIndex] != sunday[firstWeekendIndex])
         {
-          int secondWeekendIndex = saturdaySunday[k];
-          if ((saturday[firstWeekendIndex] == sunday[secondWeekendIndex] ||
-              saturday[secondWeekendIndex] == sunday[firstWeekendIndex]) &&
-              saturday[firstWeekendIndex] != sunday[firstWeekendIndex])
-          {
-            char sundayFirstShift = sunday[firstWeekendIndex];
-            sunday[firstWeekendIndex] = sunday[secondWeekendIndex];
-            sunday[secondWeekendIndex] = sundayFirstShift;
-            firstWeekend = firstWeekendIndex;
-            secondWeekend = secondWeekendIndex;
-            break;
-          }
+          char sundayFirstShift = sunday[firstWeekendIndex];
+          sunday[firstWeekendIndex] = sunday[secondWeekendIndex];
+          sunday[secondWeekendIndex] = sundayFirstShift;
+          firstWeekend = firstWeekendIndex;
+          secondWeekend = secondWeekendIndex;
+          break;
         }
       }
-      if (this->print)
-      {
-        cout << "First weekend index: " << firstWeekend << endl;
-        cout << "Second weekend index: " << secondWeekend << endl;
-        cout << endl;
-      }
+    }
+    if (this->print)
+    {
+      cout << "First weekend index: " << firstWeekend << endl;
+      cout << "Second weekend index: " << secondWeekend << endl;
+      cout << endl;
     }
     break;
   }
@@ -248,7 +250,7 @@ vector<int> Neighbourhood::GetNoneShiftIndexes(Col dayShifts)
   vector<int> noneShiftIndexes;
   for (int i = 0; i < dayShifts.size(); ++i)
   {
-    if(dayShifts[i] == NONE)
+    if (dayShifts[i] == NONE)
     {
       noneShiftIndexes.push_back(i);
     }
@@ -256,13 +258,36 @@ vector<int> Neighbourhood::GetNoneShiftIndexes(Col dayShifts)
   return noneShiftIndexes;
 }
 
+vector<int> Neighbourhood::GetNoneShiftIndexes(Roster &roster, int colIndex)
+{
+
+  Col dayShifts = roster.table.col(colIndex);
+  vector<int> noneShiftIndexes;
+  for (int i = 0; i < dayShifts.size(); ++i)
+  {
+    Employee employee = this->schedulingPeriod.employees[roster.employeeIds[i]];
+    bool workingDay = true;
+    for (auto& dayOffRequest: employee.dayOffRequest)
+    {
+      if (dayOffRequest.first == roster.dates[colIndex])
+      {
+        workingDay = false;
+      }
+    }
+    if (workingDay && dayShifts[i] == NONE)
+    {
+      noneShiftIndexes.push_back(i);
+    }
+  }
+  return noneShiftIndexes;
+}
 
 vector<int> Neighbourhood::GetAnyShiftIndexes(Col dayShifts)
 {
   vector<int> anyShiftIndexes;
   for (int i = 0; i < dayShifts.size(); ++i)
   {
-    if(dayShifts[i] != NONE)
+    if (dayShifts[i] != NONE)
     {
       anyShiftIndexes.push_back(i);
     }
@@ -276,7 +301,7 @@ vector<int> Neighbourhood::GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char
   vector<int> anyShiftIndexesWithoutSpecific;
   for (int i = 0; i < dayShifts.size(); ++i)
   {
-    if(dayShifts[i] != NONE && dayShifts[i] != shiftType)
+    if (dayShifts[i] != NONE && dayShifts[i] != shiftType)
     {
       anyShiftIndexesWithoutSpecific.push_back(i);
     }

@@ -1,0 +1,27 @@
+Přeložení programu:
+cd HABC
+./scripts/download_eigen.sh //stažení knihovny Eigen a přesun do include
+mkdir build
+cd build
+cmake ..
+
+Parametry programu:
+--period, -p : definice problému v rámci soutěže INRC2010
+--solution-number, -n : parametr SN algoritmu HABC
+--limit, -l : parametr limit algoritmu HABC
+--HCR, -h :  parametr HCR algoritmu HABC (0 znamená použítí algorimtu ABC)
+--rosters-iter-seconds, -i : maximální počet
+--roster-mode, -r : parametr -i má význam počtu vygenerovaných rozvrhů
+--iter-mode, -v : paramter -i  má význam počtu iterací
+--time-mode, -t : parametr -i má význam počtu sekund
+--output-frequency, -f : frekvence výpisů na stdout, jednotky závisí na zvoleném módu
+--output, -o : soubor pro uložení výstupu ve vlastním formátu
+--xml-output, -x : soubor pro uložení výstupu ve formátu soutěže INRC2010
+
+Ukazkové spuštění:
+#Běh algoritmu je omezen maximálním počtem vygenerovaných rozvrhů 20000
+./build/nrp -p tests/sprint01.txt -n 10 -l 1000 -h 0.5 -i 20000 -r -f 1000 -o tests/out_sprint01.txt
+#Běh algoritmu je omezen maximálním počtem iterací 500
+./build/nrp -p tests/medium01.txt -n 10 -l 1000 -h 0.5 -i 500 -v -f 100 -o tests/out_medium01.txt
+#Běh algoritmu je omezen maximálním počtem sekund 7
+./build/nrp -p tests/long01.txt -n 10 -l 1000 -h 0.5 -i 7 -t -f 1 -o tests/out_long01.txt

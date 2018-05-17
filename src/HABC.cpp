@@ -3,8 +3,21 @@
 using namespace std;
 using namespace boost::gregorian;
 
+void HABC::PrintStats(string mode, int max, int outputFrequency)
+{
+  cout << "------------------------------" << endl;
+  cout << "Mode: " << mode << endl;
+  cout << "SN: " << this->SN << endl;
+  cout << "limit: " << this->limit << endl;
+  cout << "HCR: " << this->HCR << endl;
+  cout << "Max: " << max << endl;
+  cout << "Output frequency: " << outputFrequency << endl;
+  cout << "------------------------------" << endl;
+}
+
 void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
 {
+  this->PrintStats("Roster", rostersLimit, outputFrequency);
   int freq = outputFrequency;
   this->generatedRosters = 0;
   this->InitFood();
@@ -31,6 +44,7 @@ void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
 
 void HABC::RunIter(int iterations, int outputFrequency)
 {
+  this->PrintStats("Iteration", iterations, outputFrequency);
   this->InitFood();
   for (int i = 0; i < iterations; ++i)
   {
@@ -54,6 +68,7 @@ void HABC::RunIter(int iterations, int outputFrequency)
 
 void HABC::Run()
 {
+  this->PrintStats("Time", this->timeToSolve.count() / 1000, this->outputFrequency.count() / 1000);
   auto startTime = chrono::high_resolution_clock::now();
   auto lastOutput = chrono::high_resolution_clock::now();
   this->InitFood();
@@ -360,6 +375,8 @@ void HABC::SaveSolution(string pathToOuptutFile)
   outputStream << "Random solution: " << randomPenalty << endl;
   outputStream << endl;
   outputStream.close();
+  cout << endl;
+  cout << "Solution was saved to: " << pathToOuptutFile << endl;
   return;
 }
 
@@ -401,39 +418,7 @@ void HABC::SaveSolutionToXML(string pathToOuptutFile)
   }
   outputStream << "</Solution>" << endl;
   outputStream.close();
-  return;
-}
-
-
-void HABC::TestRosters()
-{
-  int index = 0;
-  ObjectiveFunction objectiveFunction(this->schedulingPeriod);
-  Neighbourhood neighbourhood;
-  neighbourhood.setPrint();
-  this->InitFood();
-  for (auto& roster: this->rosters)
-  {
-    int penalty = objectiveFunction.Forward(roster);
-    Roster newRoster;
-    newRoster = neighbourhood.TokenRingMove(roster);
-    //newRoster = neighbourhood.MoveNeighbourhoodStructure(roster);
-    //newRoster = neighbourhood.SwapNeighbourhoodStructure(roster);
-    //newRoster = neighbourhood.SwapPatternOfShifts(roster);
-    int newPenalty = objectiveFunction.Forward(newRoster);
-    roster.Print();
-    cout << endl;
-    cout << endl;
-    cout << "Objective function output for roster " << index << ": " << penalty;
-    cout << endl;
-    cout << endl;
-    newRoster.Print();
-    cout << endl;
-    cout << endl;
-    cout << "Objective function output for new roster " << index << ": " << newPenalty;
-    cout << endl;
-    cout << endl;
-    ++index;
-  }
+  cout << endl;
+  cout << "Solution was saved to: " << pathToOuptutFile << endl;
   return;
 }

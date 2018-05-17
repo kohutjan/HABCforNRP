@@ -49,7 +49,7 @@ class HABC
     void RunRostersLimit(int rostersLimit, int outputFrequency);
     void SaveSolution(std::string pathToOuptutFile);
     void SaveSolutionToXML(std::string pathToOuptutFile);
-    void TestRosters();
+    void PrintStats(std::string mode, int max, int outputFrequency);
     ~HABC(){}
   private:
     SchedulingPeriod schedulingPeriod;

@@ -121,22 +121,22 @@ int main(int argc, char **argv)
   {
     if (timeMode)
     {
-      habc = HABC(SN, timeIterRosterToSolve, limit, outputFrequency);
+      habc = HABC(SN, timeIterRosterToSolve, limit, outputFrequency, true);
     }
     else
     {
-      habc = HABC(SN, limit);
+      habc = HABC(SN, limit, true);
     }
   }
   else
   {
     if (timeMode)
     {
-      habc = HABC(SN, timeIterRosterToSolve, limit, HCR, outputFrequency);
+      habc = HABC(SN, timeIterRosterToSolve, limit, HCR, outputFrequency, false);
     }
     else
     {
-      habc = HABC(SN, limit, HCR);
+      habc = HABC(SN, limit, HCR, false);
     }
   }
   habc.setSchedulingPeriod(schedulingPeriod);

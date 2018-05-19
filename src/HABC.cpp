@@ -30,7 +30,14 @@ void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
     }
     if (this->hillClimbing)
     {
-      this->SendEmployedBeesWithHillClimbing();
+      if (this->prob)
+      {
+        this->SendEmployedBeesWithHillClimbingProb();
+      }
+      else
+      {
+        this->SendEmployedBeesWithHillClimbing();
+      }
     }
     else
     {
@@ -54,7 +61,14 @@ void HABC::RunIter(int iterations, int outputFrequency)
     }
     if (this->hillClimbing)
     {
-      this->SendEmployedBeesWithHillClimbing();
+      if (this->prob)
+      {
+        this->SendEmployedBeesWithHillClimbingProb();
+      }
+      else
+      {
+        this->SendEmployedBeesWithHillClimbing();
+      }
     }
     else
     {
@@ -88,7 +102,14 @@ void HABC::Run()
     }
     if (this->hillClimbing)
     {
-      this->SendEmployedBeesWithHillClimbing();
+      if (this->prob)
+      {
+        this->SendEmployedBeesWithHillClimbingProb();
+      }
+      else
+      {
+        this->SendEmployedBeesWithHillClimbing();
+      }
     }
     else
     {
@@ -163,6 +184,7 @@ void HABC::SendEmployedBeesWithHillClimbing()
         }
         */
 
+
         Roster moveRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
         moveRoster.penalty = this->objectiveFunction.Forward(moveRoster);
         Roster swapRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
@@ -210,12 +232,109 @@ void HABC::SendEmployedBeesWithHillClimbing()
 }
 
 
+void HABC::SendEmployedBeesWithHillClimbingProb()
+{
+  random_device rd;
+  mt19937 eng(rd());
+  std::uniform_real_distribution<> dis(0.0, 1.0);
+  bool newRosterSet = false;
+  for (auto& roster: this->rosters)
+  {
+    if (dis(eng) <= this->HCR)
+    {
+      while(1)
+      {
+        Roster moveRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
+        moveRoster.penalty = this->objectiveFunction.Forward(moveRoster);
+        Roster swapRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
+        swapRoster.penalty = this->objectiveFunction.Forward(swapRoster);
+        Roster patternRoster = this->neighbourhood.SwapPatternOfShifts(roster);
+        patternRoster.penalty = this->objectiveFunction.Forward(patternRoster);
+        Roster tokenRoster = this->neighbourhood.TokenRingMove(roster);
+        tokenRoster.penalty = this->objectiveFunction.Forward(tokenRoster);
+        this->generatedRosters += 4;
+        int rulInterval = 0;
+        int moveStart = 10000;
+        int moveEnd = 10000;
+        int swapStart = 10000;
+        int swapEnd = 10000;
+        int patternStart = 10000;
+        int patternEnd = 10000;
+        int tokenStart = 10000;
+        int tokenEnd = 10000;
+        if (moveRoster.penalty < roster.penalty)
+        {
+          moveStart = rulInterval;
+          rulInterval += 8;
+          moveEnd = rulInterval;
+        }
+        if (swapRoster.penalty < roster.penalty)
+        {
+          swapStart = rulInterval;
+          rulInterval += 2;
+          swapEnd = rulInterval;
+        }
+        if (patternRoster.penalty < roster.penalty)
+        {
+          patternStart = rulInterval;
+          rulInterval += 8;
+          patternEnd = rulInterval;
+        }
+        if (tokenRoster.penalty < roster.penalty)
+        {
+          tokenStart = rulInterval;
+          rulInterval += 2;
+          tokenEnd = rulInterval;
+        }
+        if (rulInterval > 0)
+        {
+          int rul = this->neighbourhood.GetRandom(0, rulInterval - 1);
+          if (moveStart <= rul && rul < moveEnd)
+          {
+            roster = moveRoster;
+          }
+          if (swapStart <= rul && rul < swapEnd)
+          {
+            roster = swapRoster;
+          }
+          if (patternStart <= rul && rul < patternEnd)
+          {
+            roster = patternRoster;
+          }
+          if (tokenStart <= rul && rul < tokenEnd)
+          {
+            roster = tokenRoster;
+          }
+          newRosterSet = true;
+        }
+        else
+        {
+          break;
+        }
+      }
+      if (not newRosterSet)
+      {
+        ++roster.trial;
+      }
+    }
+  }
+  return;
+}
+
+
 void HABC::SendEmployedBees()
 {
   for (auto& roster: this->rosters)
   {
     Roster newRoster;
-    newRoster = this->ApplyRandomNeighbourhood(roster);
+    if (this->prob)
+    {
+      newRoster = this->ApplyRandomNeighbourhoodProb(roster);
+    }
+    else
+    {
+      newRoster = this->ApplyRandomNeighbourhood(roster);
+    }
     newRoster.penalty = this->objectiveFunction.Forward(newRoster);
     //cout << "Old: " << roster.penalty << endl;
     //cout << "New: " << newRoster.penalty << endl;
@@ -259,6 +378,31 @@ Roster HABC::ApplyRandomNeighbourhood(Roster& roster)
 
     default:
       break;
+  }
+  ++this->generatedRosters;
+  return newRoster;
+}
+
+
+Roster HABC::ApplyRandomNeighbourhoodProb(Roster& roster)
+{
+  int rul = this->neighbourhood.GetRandom(0, 19);
+  Roster newRoster;
+  if (0 <= rul && rul < 8)
+  {
+    newRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
+  }
+  if (8 <= rul && rul < 10)
+  {
+    newRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
+  }
+  if (10 <= rul && rul < 18)
+  {
+    newRoster = this->neighbourhood.SwapPatternOfShifts(roster);
+  }
+  if (18 <= rul && rul < 20)
+  {
+    newRoster = this->neighbourhood.TokenRingMove(roster);
   }
   ++this->generatedRosters;
   return newRoster;
@@ -315,7 +459,14 @@ void HABC::SendOnlookerBees()
     //cout << "Onlooker pick: ";
     //cout << this->rosters[i].penalty << endl;
     Roster newRoster;
-    newRoster = this->ApplyRandomNeighbourhood(this->rosters[j]);
+    if (this->prob)
+    {
+      newRoster = this->ApplyRandomNeighbourhoodProb(this->rosters[j]);
+    }
+    else
+    {
+      newRoster = this->ApplyRandomNeighbourhood(this->rosters[j]);
+    }
     newRoster.penalty = this->objectiveFunction.Forward(newRoster);
     if (newRoster.penalty < this->rosters[j].penalty)
     {

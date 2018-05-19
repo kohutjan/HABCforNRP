@@ -16,25 +16,25 @@ class HABC
 {
   public:
     HABC(){}
-    HABC(int _SN, int _timeToSolve, int _limit, int _outputFrequency) :
-         SN(_SN), limit(_limit)
+    HABC(int _SN, int _timeToSolve, int _limit, int _outputFrequency, bool _prob) :
+         SN(_SN), limit(_limit), prob(_prob)
     {
       hillClimbing = false;
       timeToSolve = std::chrono::milliseconds(_timeToSolve * 1000);
       outputFrequency = std::chrono::milliseconds(_outputFrequency * 1000);
     }
-    HABC(int _SN, int _timeToSolve, int _limit, float _HCR, int _outputFrequency) :
-         SN(_SN), limit(_limit), HCR(_HCR)
+    HABC(int _SN, int _timeToSolve, int _limit, float _HCR, int _outputFrequency, bool _prob) :
+         SN(_SN), limit(_limit), HCR(_HCR), prob(_prob)
     {
       hillClimbing = true;
       timeToSolve = std::chrono::milliseconds(_timeToSolve * 1000);
       outputFrequency = std::chrono::milliseconds(_outputFrequency * 1000);
     }
-    HABC(int _SN, int _limit) : SN(_SN), limit(_limit)
+    HABC(int _SN, int _limit, bool _prob) : SN(_SN), limit(_limit), prob(_prob)
     {
       hillClimbing = false;
     }
-    HABC(int _SN, int _limit, float _HCR) : SN(_SN), limit(_limit), HCR(_HCR)
+    HABC(int _SN, int _limit, float _HCR, bool _prob) : SN(_SN), limit(_limit), HCR(_HCR), prob(_prob)
     {
       hillClimbing = true;
     }
@@ -64,13 +64,16 @@ class HABC
     std::vector<Roster> rosters;
     Roster bestRoster;
     bool hillClimbing;
+    bool prob;
     void InitFood();
     void SendEmployedBeesWithHillClimbing();
+    void SendEmployedBeesWithHillClimbingProb();
     void SendEmployedBees();
     void SendOnlookerBees();
     void SendScoutBees();
     void SortRosters();
     Roster ApplyRandomNeighbourhood(Roster& roster);
+    Roster ApplyRandomNeighbourhoodProb(Roster& roster);
 };
 
 #endif

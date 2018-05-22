@@ -137,6 +137,7 @@ bool Neighbourhood::CheckAndSwapPattern(int colIndex, int sizeOfPattern,
   for (int k = 0; k < sizeOfPattern; ++k)
   {
     /*
+    // Uncommet to have "none" type of pattern 
     bool brokenPattern = ((firstEmployeesShifts[colIndex + k] != NONE && secondEmployeesShifts[colIndex + k] == NONE) ||
                           (firstEmployeesShifts[colIndex + k] == NONE && secondEmployeesShifts[colIndex + k] != NONE));
     if (brokenPattern)
@@ -258,6 +259,8 @@ vector<int> Neighbourhood::GetNoneShiftIndexes(Col dayShifts)
   return noneShiftIndexes;
 }
 
+
+// Get none shift indexes with respect to day off request
 vector<int> Neighbourhood::GetNoneShiftIndexes(Roster &roster, int colIndex)
 {
 
@@ -309,7 +312,7 @@ vector<int> Neighbourhood::GetAnyShiftIndexesWithoutSpecific(Col dayShifts, char
   return anyShiftIndexesWithoutSpecific;
 }
 
-
+// Returns vector of random indexes from range 0 to numberOfRandom
 vector<int> Neighbourhood::GetRandomIndexes(int numberOfIndexes, int numberOfRandom)
 {
   vector<int> v(numberOfIndexes);

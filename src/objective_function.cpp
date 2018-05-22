@@ -9,6 +9,7 @@ int ObjectiveFunction::Forward(Roster roster)
   int constrainPenalty;
   this->employeeIds = roster.employeeIds;
   this->penalties.clear();
+  // Count penalty per employee
   for (int i = 0; i < roster.table.rows(); ++i)
   {
     Penalty employeePenalty;

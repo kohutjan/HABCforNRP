@@ -42,6 +42,7 @@ class SchedulingPeriod
     std::map<I, P> LoadParam(std::ifstream &periodStream);
 };
 
+// General template for params of period
 template <typename I, typename P>
 std::map<I, P> SchedulingPeriod::LoadParam(std::ifstream &periodStream)
 {

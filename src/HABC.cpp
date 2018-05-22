@@ -119,8 +119,6 @@ void HABC::Run()
     this->SendScoutBees();
   }
   cout << this->bestRoster.penalty << endl;
-  //this->objectiveFunction.setPrint();
-  //this->objectiveFunction.Forward(this->bestRoster);
 }
 
 
@@ -169,22 +167,6 @@ void HABC::SendEmployedBeesWithHillClimbing()
     {
       while(1)
       {
-        /*
-        Roster newRoster;
-        newRoster = this->ApplyRandomNeighbourhood(roster);
-        newRoster.penalty = this->objectiveFunction.Forward(newRoster);
-        if (newRoster.penalty < roster.penalty)
-        {
-          roster = newRoster;
-          newRosterSet = true;
-        }
-        else
-        {
-          break;
-        }
-        */
-
-
         Roster moveRoster = this->neighbourhood.MoveNeighbourhoodStructure(roster);
         moveRoster.penalty = this->objectiveFunction.Forward(moveRoster);
         Roster swapRoster = this->neighbourhood.SwapNeighbourhoodStructure(roster);
@@ -231,7 +213,7 @@ void HABC::SendEmployedBeesWithHillClimbing()
   return;
 }
 
-
+// MNS and SPS have higher probability to be picked
 void HABC::SendEmployedBeesWithHillClimbingProb()
 {
   random_device rd;
@@ -336,8 +318,6 @@ void HABC::SendEmployedBees()
       newRoster = this->ApplyRandomNeighbourhood(roster);
     }
     newRoster.penalty = this->objectiveFunction.Forward(newRoster);
-    //cout << "Old: " << roster.penalty << endl;
-    //cout << "New: " << newRoster.penalty << endl;
     if (newRoster.penalty < roster.penalty)
     {
       roster = newRoster;
@@ -346,9 +326,6 @@ void HABC::SendEmployedBees()
     {
       ++roster.trial;
     }
-    //cout << "Picked: " << roster.penalty << endl;
-    //cout << "Trial: " << roster.trial << endl;
-    //cout << endl;
   }
   return;
 }
@@ -384,6 +361,7 @@ Roster HABC::ApplyRandomNeighbourhood(Roster& roster)
 }
 
 
+// MNS and SPS have higher probability to be picked
 Roster HABC::ApplyRandomNeighbourhoodProb(Roster& roster)
 {
   int rul = this->neighbourhood.GetRandom(0, 19);
@@ -434,16 +412,16 @@ void HABC::SendOnlookerBees()
     generate(begin(rostersIndexes), end(rostersIndexes), [&]{ return n++; });
     sort(begin(rostersIndexes), end(rostersIndexes),
          [&](int i1, int i2) { return probVals[i1] < probVals[i2]; } );
+    // Revert prob vals so the best roster has the biggest one
     vector<float> rulVals(this->rosters.size());
     for (size_t j = 0; j < this->rosters.size(); ++j)
     {
       rulVals[rostersIndexes[this->rosters.size() - j - 1]] = probVals[rostersIndexes[j]];
     }
 
-
+    // Roulette wheel select
     while (j < this->SN)
     {
-      //sumProb += this->rosters[j].penalty / penaltySum;
       sumProb += rulVals[j];
       if (sumProb > r)
       {
@@ -454,10 +432,7 @@ void HABC::SendOnlookerBees()
         ++j;
       }
     }
-    //cout << "R: " << r << endl;
-    //cout << "Sum prob: " << sumProb << endl;
-    //cout << "Onlooker pick: ";
-    //cout << this->rosters[i].penalty << endl;
+    
     Roster newRoster;
     if (this->prob)
     {

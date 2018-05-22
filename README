@@ -20,9 +20,17 @@ Parametry programu:
 --xml-output, -x : soubor pro uložení výstupu ve formátu soutěže INRC2010
 
 Ukazkové spuštění:
+
+cd HABCfoNRP
+
 #Běh algoritmu je omezen maximálním počtem vygenerovaných rozvrhů 20000
-./build/nrp -p tests/sprint01.txt -n 10 -l 1000 -h 0.5 -i 20000 -r -f 1000 -o tests/out_sprint01.txt
+./build/nrp -p tests/instances/sprint01.txt -n 10 -l 1000 -h 0.5 -i 20000 -r -f 1000 -o tests/outputs/out_sprint01.txt
 #Běh algoritmu je omezen maximálním počtem iterací 500
-./build/nrp -p tests/medium01.txt -n 10 -l 1000 -h 0.5 -i 400 -v -f 50 -o tests/out_medium01.txt
+./build/nrp -p tests/instances/medium01.txt -n 10 -l 1000 -h 0.5 -i 400 -v -f 50 -o tests/outputs/out_medium01.txt
 #Běh algoritmu je omezen maximálním počtem sekund 7
-./build/nrp -p tests/long01.txt -n 10 -l 1000 -h 0.5 -i 15 -t -f 1 -o tests/out_long01.txt
+./build/nrp -p tests/instances/long01.txt -n 10 -l 1000 -h 0.5 -i 15 -t -f 1 -o tests/outputs/out_long01.txt
+
+#Spustí testovací běh o 5 bězích na instancích ze složky test/instances (-rn počet běhů, -c HCR)
+python scripts/run.py -e build/nrp -n 10 -i 2000 -l 1000 -c 0.5 -rn 5 -p tests/instances/ -o tests/runs/ -r
+#Vyhodnotí testovací běh, výsledky uloží do souboru test/runs/runs_stats.txt
+python scripts/statistics.py -s tests/runs

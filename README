@@ -23,14 +23,53 @@ Ukazkové spuštění:
 
 cd HABCfoNRP
 
-#Běh algoritmu je omezen maximálním počtem vygenerovaných rozvrhů 20000
+# Běh algoritmu je omezen maximálním počtem vygenerovaných rozvrhů 20000
 ./build/nrp -p tests/instances/sprint01.txt -n 10 -l 1000 -h 0.5 -i 20000 -r -f 1000 -o tests/outputs/out_sprint01.txt
-#Běh algoritmu je omezen maximálním počtem iterací 500
+# Běh algoritmu je omezen maximálním počtem iterací 500
 ./build/nrp -p tests/instances/medium01.txt -n 10 -l 1000 -h 0.5 -i 400 -v -f 50 -o tests/outputs/out_medium01.txt
-#Běh algoritmu je omezen maximálním počtem sekund 7
+# Běh algoritmu je omezen maximálním počtem sekund 7
 ./build/nrp -p tests/instances/long01.txt -n 10 -l 1000 -h 0.5 -i 15 -t -f 1 -o tests/outputs/out_long01.txt
 
-#Spustí testovací běh o 5 bězích na instancích ze složky test/instances (-rn počet běhů, -c HCR)
+# Spustí testovací běh o 5 bězích na instancích ze složky test/instances (-rn počet běhů, -c HCR), cca. 30 sec
 python scripts/run.py -e build/nrp -n 10 -i 2000 -l 1000 -c 0.5 -rn 5 -p tests/instances/ -o tests/runs/ -r
-#Vyhodnotí testovací běh, výsledky uloží do souboru test/runs/runs_stats.txt
+# Vyhodnotí testovací běh, výsledky uloží do souboru test/runs/runs_stats.txt
 python scripts/statistics.py -s tests/runs
+
+Příklad výstupního souboru out_sprint01.txt pro sprint01.txt:
+
+# Řádky reprezentují jednotlivé sestry, sloupce dny a hodnoty typy směn
+- - - - N D N L - - E D E E - - - - D N N - - - E - N N
+L N N L - - - E N N - E D E D - - L E - D D - - L E D D
+- - - N L E E E - - - - E L L L L D - - - L N N L L - -
+D L L L L L E N - - D L N L E - - L L - - E - - E N E L
+- - - E E - L - D D L - L N - - - - N L L - - - - D L -
+L E E - D N - L L L - E - - N N N E - D L L L L - E L -
+- - - - E L - - E E - N L - - D D N E L - E D D - L E -
+N D D E - E L - - - L - - - - E E - - E E - - - - - - E
+E - - D - - - - - - N - - - L - - - - E E N E E N - - L
+E - - - - - D D - - E L - D E - - E L - - - - - D - - E
+
+# Pro každou sestru je vypsáno detailní zhodnocení
+
+employee id: 7
+------------------------------------
+CheckNumAssigments: 3
+CheckConsecutiveWorkingDays: 2
+CheckConsecutiveFreeDays: 0
+CheckConsecutiveWorkingWeekends: 0
+CheckMaxWorkingWeekendsInFourWeeks: 0
+CheckCompleteWeekends: 0
+CheckIdentShiftTypesDuringWeekend: 0
+CheckNoNightShiftBeforeFreeWeekend: 0
+CheckTwoFreeDaysAfterNightShifts: 0
+CheckRequestedDays: 3
+CheckRequstedShifts: 1
+CheckAlternativeSkillCategory: 0
+CheckUnwantedPatterns: 1
+------------------------------------
+
+# Solution představuje celkovou penaltu rozvrhu, Random solution penaltu náhodně
+# vygenerovaného rozvrhu
+
+Solution: 104
+Random solution: 253

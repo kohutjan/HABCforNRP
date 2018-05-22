@@ -13,6 +13,8 @@ void HABC::PrintStats(string mode, int max, int outputFrequency)
   cout << "Max: " << max << endl;
   cout << "Output frequency: " << outputFrequency << endl;
   cout << "------------------------------" << endl;
+  cout << endl;
+  cout << "Penalty:" << endl;
 }
 
 void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
@@ -46,6 +48,8 @@ void HABC::RunRostersLimit(int rostersLimit, int outputFrequency)
     this->SendOnlookerBees();
     this->SendScoutBees();
   }
+  cout << endl;
+  cout << "Best penalty: ";
   cout << this->bestRoster.penalty << endl;
 }
 
@@ -77,6 +81,8 @@ void HABC::RunIter(int iterations, int outputFrequency)
     this->SendOnlookerBees();
     this->SendScoutBees();
   }
+  cout << endl;
+  cout << "Best penalty: ";
   cout << this->bestRoster.penalty << endl;
 }
 
@@ -118,6 +124,8 @@ void HABC::Run()
     this->SendOnlookerBees();
     this->SendScoutBees();
   }
+  cout << endl;
+  cout << "Best penalty: ";
   cout << this->bestRoster.penalty << endl;
 }
 
@@ -432,7 +440,7 @@ void HABC::SendOnlookerBees()
         ++j;
       }
     }
-    
+
     Roster newRoster;
     if (this->prob)
     {
